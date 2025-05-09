@@ -1,0 +1,15 @@
+@import "../../../UI/layout/layout";
+
+.search-input-container {
+  height: 30px;
+
+  .search-input {
+    color: white;
+    height: 100%;
+    width: -webkit-fill-available;
+    padding-left: 7px;
+    background-color: $dark-purple;
+    border: none;
+    border-bottom: 1px solid $grey;
+  }
+}

@@ -1,0 +1,54 @@
+@import "../../../UI/layout/layout";
+
+.user-header {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+  max-width: 200px;
+  flex-wrap: wrap;
+  background-color: $very-dark-purple;
+  border: none;
+  padding: 10px;
+  color: white;
+
+  .user-img-container {
+    gap: 5px;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .user-img {
+      object-fit: cover;
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+    }
+
+    input {
+      margin-bottom: 10px;
+      max-width: 88px;
+    }
+
+    h3 {
+      color: white;
+    }
+  }
+
+  .logout-button {
+    cursor: pointer;
+    background: $light-purple;
+    color: $very-light-purple;
+    border: none;
+  }
+  .display-name-container {
+    h3 {
+      margin: 5px 0px;
+    }
+  }
+}
+
+.no-image {
+  flex-direction: column;
+}

@@ -1,0 +1,28 @@
+@import "../../../UI/layout/layout";
+
+.user-list-container {
+  max-height: 430px;
+  margin-top: 10px;
+  overflow-y: scroll;
+
+  @media screen and (max-width: $small) {
+    max-height: 400px;
+  }
+
+  .user-list {
+    padding: 0;
+    background-color: $dark-purple;
+
+    li {
+      cursor: pointer;
+      &.active {
+        background-color: $purple;
+      }
+      @include flicker(0.8s, green, transparent);
+    }
+
+    li:hover {
+      background-color: $purple;
+    }
+  }
+}

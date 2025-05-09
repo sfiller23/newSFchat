@@ -1,0 +1,33 @@
+@import "../../../UI/layout/layout";
+
+.avatar-label {
+  color: $very-light-blue;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.img-preview {
+  display: flex;
+  align-self: center;
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+  margin: 10px;
+  border-radius: 50%;
+}
+
+.avatar-upload-button {
+  cursor: pointer;
+  background-color: $light-purple;
+  color: white;
+  z-index: 9;
+
+  .upload-avatar-icon {
+    cursor: pointer;
+  }
+
+  .upload-avatar-label {
+    cursor: pointer;
+  }
+}

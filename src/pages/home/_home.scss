@@ -1,0 +1,92 @@
+@import "../../UI/layout/layout";
+
+.chat-card {
+  border: 1px solid white;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 70%;
+  min-width: 300px;
+  max-height: 800px;
+  overflow: hidden;
+
+  .collapse-button-container {
+    display: none;
+    position: absolute;
+    top: 45%;
+    left: 30%;
+    transition: transform 1s, left 1s;
+    &.open {
+      transform: rotate(180deg);
+      left: 0%;
+    }
+
+    .collapse-button {
+      border: 2px solid black;
+      border-radius: 5px;
+      background-color: $dark-purple;
+      @include flicker(0.8s, $dark-purple, green);
+    }
+
+    .collapse-icon {
+      width: 30px;
+      height: 30px;
+      padding-top: 3px;
+      color: $purple;
+
+      &.close {
+        @include dancer(0.8s, 0px, 10px);
+      }
+    }
+
+    @media screen and (max-width: $small) {
+      display: flex;
+    }
+  }
+
+  @media screen and (max-width: $medium) {
+    width: 100vw;
+    height: 100vh;
+    max-width: unset;
+    min-width: unset;
+    max-height: unset;
+    border-radius: unset;
+  }
+
+  @media screen and (max-width: $small) {
+    //margin-top: 10%;
+    //height: 80vh;
+  }
+}
+
+.users-container {
+  min-width: fit-content;
+  background-color: $very-dark-purple;
+  @media screen and (max-width: $medium) {
+    height: 100vh;
+  }
+  @media screen and (max-width: $small) {
+    position: absolute;
+    min-width: unset;
+    width: 35%;
+    opacity: 1;
+    transition: width 1s, opacity 1s;
+
+    &.open {
+      width: 0%;
+      opacity: 0;
+    }
+    &.close {
+      width: 35%;
+      opacity: 1;
+    }
+  }
+}
+
+.chat-container {
+  width: 100%;
+  min-width: 250px;
+  background-color: $very-light-purple;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
