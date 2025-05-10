@@ -21,7 +21,7 @@ import type { User } from "../../interfaces/auth";
 import type { ChatObj, Chats, Message } from "../../interfaces/chat";
 import { db } from "../../main";
 import type { AppDispatch } from "../store";
-import { addChat, setCurrentChat, setUser, setUsers } from "./chatSlice";
+import { setCurrentChat, setUser, setUsers } from "./chatSlice";
 
 export function getUser(userId: string) {
   return async function getUserThunk(dispatch: AppDispatch) {
@@ -57,7 +57,7 @@ export function getChatById(chatId: string) {
 }
 
 export function initNewChat(chatObj: ChatObj) {
-  return async function initNewChatThunk(dispatch: AppDispatch) {
+  return async function initNewChatThunk() {
     try {
       await createEntity("chats", chatObj.chatId, chatObj);
 
@@ -67,39 +67,102 @@ export function initNewChat(chatObj: ChatObj) {
       await updateEntity("users", chatObj.participant.userId, {
         chatIds: chatObj.participant.chatIds,
       });
-      dispatch(addChat(chatObj));
-      dispatch(setCurrentChat(chatObj));
-      //dispatch(getUser(chatObj.admin.userId)); //get updated user
     } catch (error) {
       alert(error);
     }
   };
 }
 
-// export const initChat2 = createAsyncThunk(
-//   "initChat",
-//   async (chatObj: ChatObj, thunkApi) => {
-//     try {
-//       await setDoc(doc(db, "chats", chatObj.chatId), {
-//         chatId: chatObj.chatId,
-//         sender: chatObj.sender,
-//         receiver: chatObj.receiver,
-//         messages: chatObj.messages,
-//       });
-//       await updateDoc(doc(db, "users", chatObj.sender.userId), {
-//         chatIds: chatObj.sender.chatIds,
-//       });
-//       await updateDoc(doc(db, "users", chatObj.receiver.userId), {
-//         chatIds: chatObj.receiver.chatIds,
-//       });
-//       thunkApi.dispatch(getUsers());
-//       thunkApi.dispatch(getUserById(chatObj.sender.userId));
-//       return chatObj;
-//     } catch (error) {
-//       alert(`${error} In initChat`);
-//     }
-//   }
-// );
+export function sendNewMessage(message: Message, currentChat: ChatObj) {
+  return async function sendNewMessageThunk() {
+    try {
+      const newAdminChatIdsObj = {
+        ...currentChat.admin.chatIds,
+        [currentChat.chatId]: {
+          lastMessageNotSeen: true,
+          senderId: message.senderId,
+        },
+      };
+      const newParticipantChatIdsObj = {
+        ...currentChat.participant.chatIds,
+        [currentChat.chatId]: {
+          lastMessageNotSeen: true,
+          senderId: message.senderId,
+        },
+      };
+      await updateDoc(doc(db, "chats", message.chatId), {
+        messages: arrayUnion(message),
+      });
+      await updateEntity("users", currentChat.admin.userId, {
+        chatIds: newAdminChatIdsObj,
+      });
+      await updateEntity("users", currentChat.participant.userId, {
+        chatIds: newParticipantChatIdsObj,
+      });
+    } catch (error) {
+      alert(error);
+    }
+  };
+}
+
+export function setMessageArrived(chatId: string) {
+  return async function setMessageArrivedThunk() {
+    try {
+      const chat = await getEntityFromCollection("chats", chatId);
+      const messages = chat?.messages;
+      messages[messages.length - 1].status = MessageStatus.ARRIVED;
+      await updateEntity("chats", chatId, { messages: messages });
+    } catch (error) {
+      alert(error);
+    }
+  };
+}
+
+export function setChatSeen(currentChat: ChatObj) {
+  return async function setChatSeenThunk() {
+    try {
+      const newAdminChatIdsObj = {
+        ...currentChat.admin.chatIds,
+        [currentChat.chatId]: {
+          ...currentChat.admin.chatIds[currentChat.chatId],
+          lastMessageNotSeen: false,
+        },
+      };
+      const newParticipantChatIdsObj = {
+        ...currentChat.participant.chatIds,
+        [currentChat.chatId]: {
+          ...currentChat.participant.chatIds[currentChat.chatId],
+          lastMessageNotSeen: false,
+        },
+      };
+
+      await updateEntity("users", currentChat.admin.userId, {
+        chatIds: newAdminChatIdsObj,
+      });
+      await updateEntity("users", currentChat.participant.userId, {
+        chatIds: newParticipantChatIdsObj,
+      });
+    } catch (error) {
+      alert(error);
+    }
+  };
+}
+
+export function setNewMessageSeen(chatId: string) {
+  return async function setNewMessageSeenThunk() {
+    try {
+      const chat = await getEntityFromCollection("chats", chatId);
+      console.log(chat, "from thunk");
+      const messages: Message[] = chat?.messages.map((message: Message) => {
+        message.status = MessageStatus.SEEN;
+        return message;
+      });
+      await updateEntity("chats", chatId, { messages: messages });
+    } catch (error) {
+      alert(error);
+    }
+  };
+}
 
 export const setWritingState = createAsyncThunk(
   "setWritingState",

@@ -1,19 +1,19 @@
 import type { ThunkDispatch, UnknownAction } from "@reduxjs/toolkit";
-import { MessageStatus } from "../constants/enums";
 import type { User } from "../interfaces/auth";
-import type { ChatObj, Chats } from "../interfaces/chat";
+import type { ChatObj } from "../interfaces/chat";
 import type { ChatState } from "../redux/chat/chatSlice";
-import { setMessageSeenReq } from "../redux/chat/chatThunk";
+import { setNewMessageSeen } from "../redux/chat/chatThunk";
 
-export const setMessageSeen = (
+export const setMessageSeen = async (
   chat: ChatObj,
   dispatch: ThunkDispatch<ChatState, undefined, UnknownAction>,
   user: User
 ) => {
   if (chat) {
     if (chat.messages.length !== 0) {
-      if (chat?.messages[chat?.messages.length - 1].userId !== user?.userId) {
-        dispatch(setMessageSeenReq(chat.chatId));
+      if (chat?.messages[chat?.messages.length - 1].senderId !== user?.userId) {
+        // if last message didn't sent by me
+        await dispatch(setNewMessageSeen(chat.chatId));
       }
     }
   }
@@ -21,42 +21,14 @@ export const setMessageSeen = (
 
 export const isNewMessage = (
   user: User,
-  currentUser: User,
-  chats: Chats
+  currentUser: User
 ): string | undefined => {
-  if (user && currentUser) {
-    for (const chatId in user.chatIds) {
-      if (chats[chatId]) {
-        if (currentUser.userId === chats[chatId].sender.userId) {
-          if (
-            chats[chatId].messages &&
-            chats[chatId].messages.length !== 0 &&
-            chats[chatId].messages[chats[chatId].messages.length - 1][
-              "status"
-            ] &&
-            chats[chatId].messages[chats[chatId].messages.length - 1].userId !==
-              chats[chatId].sender.userId &&
-            chats[chatId].messages[chats[chatId].messages.length - 1].status ===
-              MessageStatus.ARRIVED
-          ) {
-            return chats[chatId].receiver.userId;
-          }
-        } else if (currentUser.userId === chats[chatId].receiver.userId) {
-          if (
-            chats[chatId].messages &&
-            chats[chatId].messages.length !== 0 &&
-            chats[chatId].messages[chats[chatId].messages.length - 1][
-              "status"
-            ] &&
-            chats[chatId].messages[chats[chatId].messages.length - 1].userId !==
-              chats[chatId].receiver.userId &&
-            chats[chatId].messages[chats[chatId].messages.length - 1].status ===
-              MessageStatus.ARRIVED
-          ) {
-            return chats[chatId].sender.userId;
-          }
-        }
-      }
+  for (const chatId in user.chatIds) {
+    if (
+      currentUser.chatIds[chatId] &&
+      currentUser.chatIds[chatId].lastMessageNotSeen
+    ) {
+      return currentUser.chatIds[chatId].senderId;
     }
   }
 };

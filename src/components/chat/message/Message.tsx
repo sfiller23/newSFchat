@@ -1,23 +1,24 @@
 import { useEffect, useRef } from "react";
 import { FaCheck, FaCheckDouble } from "react-icons/fa6";
 import { MessageStatus } from "../../../constants/enums";
+import type { User } from "../../../interfaces/auth";
 import type { Message as MessageProps } from "../../../interfaces/chat";
 import "./_message.scss";
 
-const Message = (props: Partial<MessageProps>) => {
+const Message = (props: Partial<MessageProps> & { user: User }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { text, sentTime, status = MessageStatus.SENT, userId, user } = props;
+  const { text, sentTime, status = MessageStatus.SENT, senderId, user } = props;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
-  }, [bottomRef.current]);
+  }, [bottomRef.current?.scrollIntoView]);
 
   return (
     <div
       ref={bottomRef}
       className={`message-container ${
-        userId === user?.userId ? "sender" : "reciever"
+        senderId === user?.userId ? "sender" : "receiver"
       }`}
     >
       <div className="message-text-container">
@@ -26,7 +27,7 @@ const Message = (props: Partial<MessageProps>) => {
       <div className="message-date-time-container">
         <p>{new Date(sentTime as number).toLocaleString()}</p>
 
-        {userId === user?.userId && (
+        {senderId === user?.userId && (
           <span>
             {status === MessageStatus.SENT && (
               <span>

@@ -35,12 +35,6 @@ const Home = () => {
   //   setNewMessage(!!isNewMessage(user as User, user as User, chats));
   // }, [user]);
 
-  // useEffect(() => {
-  //   if (authUser?.userId) {
-  //     setUser(users.filter((user) => user.userId === authUser?.userId)[0]);
-  //   }
-  // }, [authUser?.userId, users]);
-
   return (
     <Card classNames={["chat-card"]}>
       <span

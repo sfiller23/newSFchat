@@ -2,14 +2,13 @@ import { MessageStatus } from "../constants/enums";
 import type { User } from "./auth";
 
 export interface Message {
+  messageId: string;
   displayName: string;
-  sender: User;
-  receiver: User;
   text: string;
   sentTime: number;
   status: MessageStatus;
-  index: number;
   chatId: string;
+  senderId: string;
 }
 
 export interface Chats {
@@ -25,5 +24,5 @@ export interface ChatObj {
 }
 
 export interface ChatIds {
-  [chatId: string]: { active: boolean };
+  [chatId: string]: { lastMessageNotSeen: boolean; senderId: string };
 }

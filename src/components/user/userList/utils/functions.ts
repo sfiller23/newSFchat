@@ -1,4 +1,4 @@
-import { v4 as uuid } from "uuid";
+import { v4 as uid } from "uuid";
 import type { User } from "../../../../interfaces/auth";
 import type { ChatObj } from "../../../../interfaces/chat";
 
@@ -20,18 +20,24 @@ export const chatExists = (
 };
 
 export const createChat = (admin: User, participant: User): ChatObj => {
-  const chatId = uuid();
+  const chatId = uid();
   localStorage.setItem("chatId", chatId);
 
   // Create new objects for admin and participant to avoid mutating the original ones
   const updatedAdmin = {
     ...admin,
-    chatIds: { ...admin.chatIds, [chatId]: { active: true } },
+    chatIds: {
+      ...admin.chatIds,
+      [chatId]: { lastMessageNotSeen: false, senderId: admin.userId },
+    },
   };
 
   const updatedParticipant = {
     ...participant,
-    chatIds: { ...participant.chatIds, [chatId]: { active: true } },
+    chatIds: {
+      ...participant.chatIds,
+      [chatId]: { lastMessageNotSeen: false, senderId: admin.userId },
+    },
   };
   const chatObj: ChatObj = {
     chatId,

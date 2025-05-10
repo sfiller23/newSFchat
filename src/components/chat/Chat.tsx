@@ -1,11 +1,8 @@
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
 import type { User } from "../../interfaces/auth";
-import type { ChatObj } from "../../interfaces/chat";
 import { db } from "../../main";
-import { type ChatState, updateCurrentChat } from "../../redux/chat/chatSlice";
-import { getChats } from "../../redux/chat/chatThunk";
+import { setCurrentChat, type ChatState } from "../../redux/chat/chatSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks/reduxHooks";
 import "./_chat.scss";
 import ChatFooter from "./chatFooter/ChatFooter";
@@ -17,46 +14,49 @@ const Chat = (props: Partial<ChatState>) => {
 
   const dispatch = useAppDispatch();
 
-  const currentChat = useAppSelector((state) => state.chatReducer.currentChat);
+  const chat = useAppSelector((state) => state.chatReducer.currentChat);
 
-  const chats = useAppSelector((state) => state.chatReducer.chats);
+  const [currentChatId, setCurrentChatId] = useState("");
 
-  const [chat, setChat] = useState<ChatObj>();
+  const chatId = localStorage.getItem("chatId");
+  //const [chat, setChat] = useState<ChatObj>();
 
-  const location = useLocation();
+  //const location = useLocation();
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const chatId = localStorage.getItem("chatId");
+  useEffect(() => {
+    if (chatId) {
+      // (async () => {
+      //   if (currentChatId !== chatId) {
+      //     await dispatch(getChatById(chatId));
+      setCurrentChatId(chatId);
+      //   }
+      // })();
+    }
+  }, [chatId]);
 
   // useEffect(() => {
-  //   if (chatId) {
-  //     dispatch(getChatById(chatId));
+  //   if (currentChat) {
+  //     setChat(chats[currentChat.chatId]);
   //   }
-  // }, [location.pathname]);
+  // }, [chats, currentChat]);
 
   useEffect(() => {
-    if (currentChat) {
-      setChat(chats[currentChat.chatId]);
-    }
-  }, [chats, currentChat]);
-
-  useEffect(() => {
-    const updateChat = () => {
-      const unSub = onSnapshot(collection(db, "chats"), (doc) => {
-        doc.docChanges().forEach((change) => {
-          dispatch(getChats());
-          //dispatch(getUsers());
-          dispatch(updateCurrentChat(change.doc.data()));
-        });
-      });
-
-      return () => {
-        unSub();
-      };
+    const q = query(
+      collection(db, "chats"),
+      where("chatId", "==", currentChatId)
+    );
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const chat = querySnapshot
+        .docChanges()
+        .find((chat) => chat.doc.data().chatId === currentChatId);
+      dispatch(setCurrentChat(chat?.doc.data()));
+    });
+    return () => {
+      unsubscribe();
     };
-    updateChat();
-  }, []);
+  }, [currentChatId]);
 
   return (
     <>
@@ -71,7 +71,7 @@ const Chat = (props: Partial<ChatState>) => {
                   key={message.sentTime}
                   text={message.text}
                   sentTime={message.sentTime}
-                  userId={message.userId}
+                  senderId={message.senderId}
                   status={message.status}
                   user={user as User}
                 />

@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { PiNavigationArrowThin } from "react-icons/pi";
-import { setWritingState, updateChat } from "../../../redux/chat/chatThunk";
+import { v4 as uid } from "uuid";
+import {
+  sendNewMessage,
+  setMessageArrived,
+  setWritingState,
+} from "../../../redux/chat/chatThunk";
 import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 
 import { MessageStatus } from "../../../constants/enums";
@@ -9,15 +14,12 @@ import type {
   ChatObj,
   Message as MessageProps,
 } from "../../../interfaces/chat";
-import {
-  setCurrentChatMessage,
-  type ChatState,
-} from "../../../redux/chat/chatSlice";
+import { addMessage, type ChatState } from "../../../redux/chat/chatSlice";
 import { setMessageSeen } from "../../../utils/common-functions";
 import "./_chat-footer.scss";
 
 const ChatFooter = (props: Partial<ChatState>) => {
-  const { currentChat: chat, user } = props;
+  const { currentChat, user } = props;
 
   const [messageText, setMessageText] = useState("");
   const [isChatActive, setIsChatActive] = useState(false);
@@ -26,45 +28,49 @@ const ChatFooter = (props: Partial<ChatState>) => {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
-  }, [bottomRef.current]);
+  }, [bottomRef.current?.scrollIntoView]);
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (chat) {
+    if (currentChat) {
       setIsChatActive(true);
     }
-  }, [chat]);
+  }, [currentChat]);
 
   const setWriting = (isWritingMode: boolean) => {
-    if (chat && user) {
+    if (currentChat && user) {
       dispatch(
         setWritingState({
           isWriting: isWritingMode,
-          chatId: chat.chatId,
+          chatId: currentChat.chatId,
           writerID: user?.userId,
         })
       );
     }
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     setWriting(false);
+    const messageId = uid();
     if (user) {
       const messageObj: MessageProps = {
+        messageId: messageId,
         displayName: user.displayName,
-        userId: user.userId,
         text: messageText,
         sentTime: Date.now(),
         status: MessageStatus.SENT,
+        chatId: currentChat?.chatId as string,
+        senderId: user.userId,
       };
-      dispatch(setCurrentChatMessage(messageObj));
-      if (chat) {
-        if (chat.chatId) {
-          dispatch(updateChat({ chatId: chat.chatId, message: messageObj }));
+      if (currentChat) {
+        if (currentChat.chatId) {
+          dispatch(addMessage(messageObj));
+          await dispatch(sendNewMessage(messageObj, currentChat));
+          //If sending message did't failed, it's arrived;
+          await dispatch(setMessageArrived(messageObj.chatId));
         }
       }
-
       setMessageText("");
     }
   };
@@ -90,7 +96,7 @@ const ChatFooter = (props: Partial<ChatState>) => {
               setMessageText(e.target.value);
             }}
             onFocus={() => {
-              setMessageSeen(chat as ChatObj, dispatch, user as User);
+              setMessageSeen(currentChat as ChatObj, dispatch, user as User);
             }}
           />
 

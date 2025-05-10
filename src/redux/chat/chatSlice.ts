@@ -1,18 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { User } from "../../interfaces/auth";
-import type { ChatObj, Chats } from "../../interfaces/chat";
+import type { ChatObj } from "../../interfaces/chat";
 
 export interface ChatState {
   user?: User;
   users: User[];
-  chats: Chats;
   currentChat?: ChatObj;
 }
 
 const initialState: ChatState = {
   user: undefined,
   users: [],
-  chats: {},
   currentChat: undefined,
 };
 
@@ -29,12 +27,6 @@ const chatSlice = createSlice({
     setCurrentChat: (state, action) => {
       state.currentChat = action.payload;
     },
-    addChat: (state, action) => {
-      state.chats[action.payload.chatId] = action.payload;
-    },
-    updateCurrentChat: (state, action) => {
-      state.chats[action.payload.chatId] = action.payload;
-    },
     updateUser: (state, action) => {
       const userIndex = state.users
         .map((user) => user.userId)
@@ -44,7 +36,7 @@ const chatSlice = createSlice({
         state.user = action.payload;
       }
     },
-    setCurrentChatMessage: (state, action) => {
+    addMessage: (state, action) => {
       state.currentChat?.messages.push(action.payload);
     },
     setAuthenticatedUser: (state, action) => {
@@ -64,14 +56,12 @@ const chatSlice = createSlice({
 export const {
   searchUser,
   setAuthenticatedUser,
-  setCurrentChatMessage,
   updateUser,
   clearChat,
-  updateCurrentChat,
   setUser,
   setUsers,
   setCurrentChat,
-  addChat,
+  addMessage,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

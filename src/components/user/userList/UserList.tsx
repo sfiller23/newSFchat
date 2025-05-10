@@ -9,12 +9,14 @@ import { updateUser, type ChatState } from "../../../redux/chat/chatSlice";
 
 import { collection, onSnapshot } from "firebase/firestore";
 import type { User } from "../../../interfaces/auth";
+import type { ChatObj } from "../../../interfaces/chat";
 import { db } from "../../../main";
 import { selectUsers } from "../../../redux/chat/chatSelectors";
 import {
   getChatById,
   getUsers,
   initNewChat,
+  setChatSeen,
 } from "../../../redux/chat/chatThunk";
 import ListItem from "./listItem/ListItem";
 import { chatExists, createChat } from "./utils/functions";
@@ -24,36 +26,34 @@ export const UserList = (props: Partial<ChatState>) => {
 
   const users = useAppSelector(selectUsers);
 
-  // const chats = useAppSelector((state) => state.chatReducer.chats);
+  const currentChat = useAppSelector((state) => state.chatReducer.currentChat);
 
   const [listItemActiveUid, setListItemActiveUid] = useState("");
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const updateUserList = () => {
-      const unSub = onSnapshot(collection(db, "users"), (doc) => {
-        doc.docChanges().forEach((change) => {
-          switch (change.type) {
-            case "added":
-              (async () => {
-                await dispatch(getUsers());
-              })();
-              break;
-            case "modified":
-              dispatch(updateUser(change.doc.data()));
-              break;
-            default:
-              return;
-          }
-        });
+    const unsubscribe = onSnapshot(collection(db, "users"), (doc) => {
+      doc.docChanges().forEach((change) => {
+        switch (change.type) {
+          case "added":
+            (async () => {
+              await dispatch(getUsers());
+            })();
+            break;
+          case "modified":
+            dispatch(updateUser(change.doc.data()));
+            break;
+          default:
+            return;
+        }
       });
+    });
 
-      return () => {
-        unSub();
-      };
+    return () => {
+      console.log("user unsubscribe");
+      unsubscribe();
     };
-    updateUserList();
   }, []);
 
   const openChat = useCallback(async (admin: User, participant: User) => {
@@ -74,9 +74,15 @@ export const UserList = (props: Partial<ChatState>) => {
   }, []);
 
   const handleClick = useCallback(
-    async (uid: string, admin: User, participant: User) => {
-      await openChat(admin, participant);
+    async (
+      uid: string,
+      admin: User,
+      participant: User,
+      currentChat: ChatObj
+    ) => {
       setUserActive(uid);
+      await openChat(admin, participant);
+      await dispatch(setChatSeen(currentChat));
     },
     [openChat, setUserActive]
   );
@@ -90,8 +96,8 @@ export const UserList = (props: Partial<ChatState>) => {
               <ListItem
                 key={user.userId}
                 currentUser={currentUser}
+                currentChat={currentChat}
                 user={user}
-                // chats={chats}
                 handleClick={handleClick}
                 listItemActiveUid={listItemActiveUid}
               />
