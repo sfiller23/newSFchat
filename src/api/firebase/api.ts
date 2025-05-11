@@ -23,6 +23,7 @@ export async function uploadAvatar(
     await uploadBytes(storageRef, file);
   } catch (error) {
     alert(error);
+    console.error(error);
   }
 }
 
@@ -35,6 +36,7 @@ export async function createEntity(
     await setDoc(doc(db, collection, id), newObj);
   } catch (error) {
     alert(error);
+    console.error(error);
   }
 }
 
@@ -57,6 +59,7 @@ export async function getAllEntities(entity: string) {
     return entityArray;
   } catch (error) {
     alert(error);
+    console.error(error);
   }
 }
 
@@ -69,6 +72,7 @@ export async function getEntityFromCollection(
     return res.data();
   } catch (error) {
     alert(error);
+    console.error(error);
   }
 }
 

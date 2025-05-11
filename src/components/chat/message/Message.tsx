@@ -3,6 +3,7 @@ import { FaCheck, FaCheckDouble } from "react-icons/fa6";
 import { MessageStatus } from "../../../constants/enums";
 import type { User } from "../../../interfaces/auth";
 import type { Message as MessageProps } from "../../../interfaces/chat";
+import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 import "./_message.scss";
 
 const Message = (props: Partial<MessageProps> & { user: User }) => {
@@ -10,9 +11,21 @@ const Message = (props: Partial<MessageProps> & { user: User }) => {
 
   const { text, sentTime, status = MessageStatus.SENT, senderId, user } = props;
 
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
   }, [bottomRef.current?.scrollIntoView]);
+
+  // useEffect(() => {
+  //   if (status !== MessageStatus.SEEN) {
+  //     (async () => {
+  //       await dispatch(updateChatSeenStatus());
+  //     })();
+  //   } else {
+  //     await dispatch(updateChatSeenStatus());
+  //   }
+  // }, [status]);
 
   return (
     <div

@@ -27,6 +27,7 @@ export function loginReq(email: string, password: string) {
       );
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
@@ -63,6 +64,7 @@ export function registerReq(
       );
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }

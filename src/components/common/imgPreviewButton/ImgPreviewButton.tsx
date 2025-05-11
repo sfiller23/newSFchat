@@ -42,6 +42,7 @@ const ImgPreviewButton = (props: imgPreviewButtonProps) => {
       appContext?.setImageProfileChange();
     } catch (error) {
       alert(error);
+      console.error(error);
     } finally {
       appContext?.setLoadingState(false);
     }

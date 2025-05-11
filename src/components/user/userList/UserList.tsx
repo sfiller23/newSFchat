@@ -9,7 +9,6 @@ import { updateUser, type ChatState } from "../../../redux/chat/chatSlice";
 
 import { collection, onSnapshot } from "firebase/firestore";
 import type { User } from "../../../interfaces/auth";
-import type { ChatObj } from "../../../interfaces/chat";
 import { db } from "../../../main";
 import { selectUsers } from "../../../redux/chat/chatSelectors";
 import {
@@ -25,8 +24,6 @@ export const UserList = (props: Partial<ChatState>) => {
   const { user: currentUser } = props;
 
   const users = useAppSelector(selectUsers);
-
-  const currentChat = useAppSelector((state) => state.chatReducer.currentChat);
 
   const [listItemActiveUid, setListItemActiveUid] = useState("");
 
@@ -51,7 +48,6 @@ export const UserList = (props: Partial<ChatState>) => {
     });
 
     return () => {
-      console.log("user unsubscribe");
       unsubscribe();
     };
   }, []);
@@ -60,12 +56,16 @@ export const UserList = (props: Partial<ChatState>) => {
     if (chatExists(admin, participant)) {
       const chatId = chatExists(admin, participant);
       await dispatch(getChatById(chatId as string));
-      // setMessageSeen(chats[chatId as string], dispatch, admin);
+      if (chatId) {
+        await dispatch(setChatSeen(admin, participant, chatId as string));
+      }
       return;
     }
     const chatObj = createChat(admin, participant);
     await dispatch(initNewChat(chatObj));
-    // setMessageSeen(chats[chatId], dispatch, sender);
+    if (chatObj.chatId) {
+      await dispatch(setChatSeen(admin, participant, chatObj.chatId));
+    }
   }, []);
 
   const setUserActive = useCallback((uid: string) => {
@@ -74,15 +74,9 @@ export const UserList = (props: Partial<ChatState>) => {
   }, []);
 
   const handleClick = useCallback(
-    async (
-      uid: string,
-      admin: User,
-      participant: User,
-      currentChat: ChatObj
-    ) => {
+    async (uid: string, admin: User, participant: User) => {
       setUserActive(uid);
       await openChat(admin, participant);
-      await dispatch(setChatSeen(currentChat));
     },
     [openChat, setUserActive]
   );
@@ -96,7 +90,6 @@ export const UserList = (props: Partial<ChatState>) => {
               <ListItem
                 key={user.userId}
                 currentUser={currentUser}
-                currentChat={currentChat}
                 user={user}
                 handleClick={handleClick}
                 listItemActiveUid={listItemActiveUid}

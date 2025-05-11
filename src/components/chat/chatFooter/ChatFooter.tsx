@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { PiNavigationArrowThin } from "react-icons/pi";
 import { v4 as uid } from "uuid";
 import {
+  getUserById,
   sendNewMessage,
   setMessageArrived,
   setWritingState,
@@ -17,6 +18,7 @@ import type {
 import { addMessage, type ChatState } from "../../../redux/chat/chatSlice";
 import { setMessageSeen } from "../../../utils/common-functions";
 import "./_chat-footer.scss";
+import { getUpdateUserChatIds } from "./utils/functions";
 
 const ChatFooter = (props: Partial<ChatState>) => {
   const { currentChat, user } = props;
@@ -24,19 +26,34 @@ const ChatFooter = (props: Partial<ChatState>) => {
   const [messageText, setMessageText] = useState("");
   const [isChatActive, setIsChatActive] = useState(false);
 
+  const dispatch = useAppDispatch();
+
   const bottomRef = useRef<HTMLSpanElement>(null);
+
+  const [receiver, setReceiver] = useState<User>();
+
+  const receiverId = localStorage.getItem("activeUid");
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
   }, [bottomRef.current?.scrollIntoView]);
-
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (currentChat) {
       setIsChatActive(true);
     }
   }, [currentChat]);
+
+  useEffect(() => {
+    if (receiverId) {
+      (async () => {
+        const userFromList = await dispatch(getUserById(receiverId));
+        if (userFromList) {
+          setReceiver(userFromList as User);
+        }
+      })();
+    }
+  }, [receiverId]);
 
   const setWriting = (isWritingMode: boolean) => {
     if (currentChat && user) {
@@ -64,9 +81,13 @@ const ChatFooter = (props: Partial<ChatState>) => {
         senderId: user.userId,
       };
       if (currentChat) {
-        if (currentChat.chatId) {
+        if (currentChat.chatId && receiver && user) {
           dispatch(addMessage(messageObj));
-          await dispatch(sendNewMessage(messageObj, currentChat));
+          const updatedAdmin = getUpdateUserChatIds(user, messageObj);
+          const updatedParticipant = getUpdateUserChatIds(receiver, messageObj);
+          await dispatch(
+            sendNewMessage(messageObj, updatedAdmin, updatedParticipant)
+          );
           //If sending message did't failed, it's arrived;
           await dispatch(setMessageArrived(messageObj.chatId));
         }

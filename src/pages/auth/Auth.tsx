@@ -46,6 +46,7 @@ const Auth = () => {
       navigate("/");
     } catch (error) {
       alert(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }

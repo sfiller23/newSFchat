@@ -1,36 +1,24 @@
 import { memo } from "react";
 import LoggedInIcon from "../../../../UI/loggedInIcon/loggedInIcon";
 import type { User } from "../../../../interfaces/auth";
-import type { ChatObj } from "../../../../interfaces/chat";
 import type { ChatState } from "../../../../redux/chat/chatSlice";
 import { isNewMessage } from "../../../../utils/common-functions";
 import "./_list-item.scss";
 
 interface ListItemProps extends Partial<ChatState> {
   currentUser: User;
-  handleClick: (
-    uid: string,
-    admin: User,
-    participant: User,
-    currentChat: ChatObj
-  ) => Promise<void>;
+  handleClick: (uid: string, admin: User, participant: User) => Promise<void>;
   listItemActiveUid: string;
 }
 
 const ListItem = (props: ListItemProps) => {
-  const { currentUser, user, handleClick, listItemActiveUid, currentChat } =
-    props;
+  const { currentUser, user, handleClick, listItemActiveUid } = props;
   const activeUid = localStorage.getItem("activeUid");
 
   return (
     <li
       onClick={async () => {
-        await handleClick(
-          user?.userId as string,
-          currentUser,
-          user as User,
-          currentChat as ChatObj
-        );
+        await handleClick(user?.userId as string, currentUser, user as User);
       }}
       className={`list-item ${
         (listItemActiveUid === user?.userId && "active") ||

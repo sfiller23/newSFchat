@@ -22,6 +22,7 @@ import type { ChatObj, Chats, Message } from "../../interfaces/chat";
 import { db } from "../../main";
 import type { AppDispatch } from "../store";
 import { setCurrentChat, setUser, setUsers } from "./chatSlice";
+import { updatedChatIds } from "./helpers";
 
 export function getUser(userId: string) {
   return async function getUserThunk(dispatch: AppDispatch) {
@@ -30,6 +31,7 @@ export function getUser(userId: string) {
       dispatch(setUser(user));
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
@@ -41,6 +43,7 @@ export function getUsers() {
       dispatch(setUsers(users));
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
@@ -52,6 +55,7 @@ export function getChatById(chatId: string) {
       dispatch(setCurrentChat(currentChat));
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
@@ -69,38 +73,30 @@ export function initNewChat(chatObj: ChatObj) {
       });
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
 
-export function sendNewMessage(message: Message, currentChat: ChatObj) {
+export function sendNewMessage(
+  message: Message,
+  updatedAdmin: User,
+  updatedParticipant: User
+) {
   return async function sendNewMessageThunk() {
     try {
-      const newAdminChatIdsObj = {
-        ...currentChat.admin.chatIds,
-        [currentChat.chatId]: {
-          lastMessageNotSeen: true,
-          senderId: message.senderId,
-        },
-      };
-      const newParticipantChatIdsObj = {
-        ...currentChat.participant.chatIds,
-        [currentChat.chatId]: {
-          lastMessageNotSeen: true,
-          senderId: message.senderId,
-        },
-      };
       await updateDoc(doc(db, "chats", message.chatId), {
         messages: arrayUnion(message),
       });
-      await updateEntity("users", currentChat.admin.userId, {
-        chatIds: newAdminChatIdsObj,
+      await updateEntity("users", updatedAdmin.userId, {
+        chatIds: updatedAdmin.chatIds,
       });
-      await updateEntity("users", currentChat.participant.userId, {
-        chatIds: newParticipantChatIdsObj,
+      await updateEntity("users", updatedParticipant.userId, {
+        chatIds: updatedParticipant.chatIds,
       });
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
@@ -114,36 +110,25 @@ export function setMessageArrived(chatId: string) {
       await updateEntity("chats", chatId, { messages: messages });
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
 
-export function setChatSeen(currentChat: ChatObj) {
+export function setChatSeen(admin: User, participant: User, chatId: string) {
   return async function setChatSeenThunk() {
     try {
-      const newAdminChatIdsObj = {
-        ...currentChat.admin.chatIds,
-        [currentChat.chatId]: {
-          ...currentChat.admin.chatIds[currentChat.chatId],
-          lastMessageNotSeen: false,
-        },
-      };
-      const newParticipantChatIdsObj = {
-        ...currentChat.participant.chatIds,
-        [currentChat.chatId]: {
-          ...currentChat.participant.chatIds[currentChat.chatId],
-          lastMessageNotSeen: false,
-        },
-      };
-
-      await updateEntity("users", currentChat.admin.userId, {
+      const newAdminChatIdsObj = updatedChatIds(admin, chatId);
+      const newParticipantChatIdsObj = updatedChatIds(participant, chatId);
+      await updateEntity("users", admin.userId, {
         chatIds: newAdminChatIdsObj,
       });
-      await updateEntity("users", currentChat.participant.userId, {
+      await updateEntity("users", participant.userId, {
         chatIds: newParticipantChatIdsObj,
       });
     } catch (error) {
       alert(error);
+      console.error(error);
     }
   };
 }
@@ -152,7 +137,6 @@ export function setNewMessageSeen(chatId: string) {
   return async function setNewMessageSeenThunk() {
     try {
       const chat = await getEntityFromCollection("chats", chatId);
-      console.log(chat, "from thunk");
       const messages: Message[] = chat?.messages.map((message: Message) => {
         message.status = MessageStatus.SEEN;
         return message;
@@ -160,6 +144,19 @@ export function setNewMessageSeen(chatId: string) {
       await updateEntity("chats", chatId, { messages: messages });
     } catch (error) {
       alert(error);
+      console.error(error);
+    }
+  };
+}
+
+export function getUserById(userId: string) {
+  return async function setNewMessageSeenThunk() {
+    try {
+      const user = await getEntityFromCollection("users", userId);
+      return user;
+    } catch (error) {
+      alert(error);
+      console.error(error);
     }
   };
 }
@@ -224,7 +221,7 @@ export const updateChat = createAsyncThunk(
   }
 );
 
-export const getUserById = createAsyncThunk(
+export const getUserById2 = createAsyncThunk(
   "getUserById",
   async (userId: string) => {
     try {
