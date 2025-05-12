@@ -1,23 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { PiNavigationArrowThin } from "react-icons/pi";
-import { v4 as uid } from "uuid";
-import {
-  sendNewMessage,
-  setMessageArrived,
-  setWritingState,
-} from "../../../redux/chat/chatThunk";
+
+import { setWritingState } from "../../../redux/chat/chatThunk";
 import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 
-import { MessageStatus } from "../../../constants/enums";
 import type { User } from "../../../interfaces/auth";
-import type {
-  ChatObj,
-  Message as MessageProps,
-} from "../../../interfaces/chat";
+import type { ChatObj } from "../../../interfaces/chat";
 import { useUsers } from "../../../redux/chat/chatSelectors";
-import { setMessageSeen } from "../../../utils/common-functions";
 import "./_chat-footer.scss";
-import { addChatId } from "./utils/functions";
+import { getMessageObj, onFocusHandler, updateChat } from "./utils/functions";
 
 const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
   const { currentChat, currentUser } = props;
@@ -64,36 +55,27 @@ const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
     }
   };
 
-  const sendMessage = async () => {
+  const sendMessage = async (
+    currentUser: User,
+    messageText: string,
+    currentChat: ChatObj,
+    receiver: User
+  ) => {
     setWriting(false);
-    const messageId = uid();
-    if (currentUser) {
-      const messageObj: MessageProps = {
-        messageId: messageId,
-        displayName: currentUser.displayName,
-        text: messageText,
-        sentTime: Date.now(),
-        status: MessageStatus.SENT,
-        chatId: currentChat?.chatId as string,
-        senderId: currentUser.userId,
-      };
-      if (currentChat) {
-        if (currentChat.chatId && receiver && currentUser) {
-          //dispatch(addMessage(messageObj));
-          //console.log(user, "user before manipulation");
-          //console.log(receiver, "user before manipulation");
-          const updatedAdmin = addChatId(currentUser, messageObj, true);
-          const updatedParticipant = addChatId(receiver, messageObj, false);
-          //console.log(updatedParticipant, "updatedParticipant");
-          await dispatch(
-            sendNewMessage(messageObj, updatedAdmin, updatedParticipant)
-          );
-          //If sending message did't failed, it's arrived;
-          await dispatch(setMessageArrived(messageObj.chatId));
-        }
-      }
-      setMessageText("");
+    const messageObj = getMessageObj(
+      currentUser,
+      messageText,
+      currentChat.chatId
+    );
+    await updateChat(currentUser, receiver, messageObj, dispatch);
+    setMessageText("");
+  };
+
+  const onChangeHandler = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    if (e.target.value === "" || e.target.value === undefined) {
+      setWriting(false);
     }
+    setMessageText(e.target.value);
   };
 
   return (
@@ -111,22 +93,27 @@ const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
               setWriting(false);
             }}
             onChange={(e) => {
-              if (e.target.value === "" || e.target.value === undefined) {
-                setWriting(false);
-              }
-              setMessageText(e.target.value);
+              onChangeHandler(e);
             }}
             onFocus={() => {
-              setMessageSeen(
-                currentChat as ChatObj,
-                dispatch,
-                currentUser as User
+              onFocusHandler(
+                currentChat,
+                currentUser,
+                receiver as User,
+                dispatch
               );
             }}
           />
 
           <button
-            onClick={sendMessage}
+            onClick={() =>
+              sendMessage(
+                currentUser,
+                messageText,
+                currentChat,
+                receiver as User
+              )
+            }
             disabled={messageText ? false : true}
             className="send-button"
           >
