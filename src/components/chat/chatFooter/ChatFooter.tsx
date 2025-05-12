@@ -6,10 +6,7 @@ import {
   setMessageArrived,
   setWritingState,
 } from "../../../redux/chat/chatThunk";
-import {
-  useAppDispatch,
-  useAppSelector,
-} from "../../../redux/hooks/reduxHooks";
+import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 
 import { MessageStatus } from "../../../constants/enums";
 import type { User } from "../../../interfaces/auth";
@@ -17,16 +14,15 @@ import type {
   ChatObj,
   Message as MessageProps,
 } from "../../../interfaces/chat";
-import { selectUsers } from "../../../redux/chat/chatSelectors";
-import { type ChatState } from "../../../redux/chat/chatSlice";
+import { useUsers } from "../../../redux/chat/chatSelectors";
 import { setMessageSeen } from "../../../utils/common-functions";
 import "./_chat-footer.scss";
 import { addChatId } from "./utils/functions";
 
-const ChatFooter = (props: Partial<ChatState>) => {
-  const { currentChat, user } = props;
+const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
+  const { currentChat, currentUser } = props;
 
-  const users = useAppSelector(selectUsers);
+  const users = useUsers();
 
   const [messageText, setMessageText] = useState("");
   const [isChatActive, setIsChatActive] = useState(false);
@@ -44,10 +40,10 @@ const ChatFooter = (props: Partial<ChatState>) => {
   }, [bottomRef.current?.scrollIntoView]);
 
   useEffect(() => {
-    if (currentChat) {
+    if (currentChat.chatId) {
       setIsChatActive(true);
     }
-  }, [currentChat]);
+  }, [currentChat.chatId]);
 
   useEffect(() => {
     if (receiverId) {
@@ -57,12 +53,12 @@ const ChatFooter = (props: Partial<ChatState>) => {
   }, [receiverId, users]);
 
   const setWriting = (isWritingMode: boolean) => {
-    if (currentChat && user) {
+    if (currentChat && currentUser) {
       dispatch(
         setWritingState({
           isWriting: isWritingMode,
           chatId: currentChat.chatId,
-          writerID: user?.userId,
+          writerID: currentUser.userId,
         })
       );
     }
@@ -71,22 +67,22 @@ const ChatFooter = (props: Partial<ChatState>) => {
   const sendMessage = async () => {
     setWriting(false);
     const messageId = uid();
-    if (user) {
+    if (currentUser) {
       const messageObj: MessageProps = {
         messageId: messageId,
-        displayName: user.displayName,
+        displayName: currentUser.displayName,
         text: messageText,
         sentTime: Date.now(),
         status: MessageStatus.SENT,
         chatId: currentChat?.chatId as string,
-        senderId: user.userId,
+        senderId: currentUser.userId,
       };
       if (currentChat) {
-        if (currentChat.chatId && receiver && user) {
+        if (currentChat.chatId && receiver && currentUser) {
           //dispatch(addMessage(messageObj));
           //console.log(user, "user before manipulation");
           //console.log(receiver, "user before manipulation");
-          const updatedAdmin = addChatId(user, messageObj, true);
+          const updatedAdmin = addChatId(currentUser, messageObj, true);
           const updatedParticipant = addChatId(receiver, messageObj, false);
           //console.log(updatedParticipant, "updatedParticipant");
           await dispatch(
@@ -121,7 +117,11 @@ const ChatFooter = (props: Partial<ChatState>) => {
               setMessageText(e.target.value);
             }}
             onFocus={() => {
-              setMessageSeen(currentChat as ChatObj, dispatch, user as User);
+              setMessageSeen(
+                currentChat as ChatObj,
+                dispatch,
+                currentUser as User
+              );
             }}
           />
 

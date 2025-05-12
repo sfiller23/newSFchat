@@ -1,16 +1,13 @@
 import { memo, useCallback, useEffect, useState } from "react";
-import {
-  useAppDispatch,
-  useAppSelector,
-} from "../../../redux/hooks/reduxHooks";
+import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 import "./_user-list.scss";
 
-import { updateUser, type ChatState } from "../../../redux/chat/chatSlice";
+import { updateUser } from "../../../redux/chat/chatSlice";
 
 import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../../api/firebase/api";
 import type { User } from "../../../interfaces/auth";
-import { db } from "../../../main";
-import { selectUsers } from "../../../redux/chat/chatSelectors";
+import { useUsers } from "../../../redux/chat/chatSelectors";
 import {
   getChatById,
   getUsers,
@@ -20,10 +17,10 @@ import {
 import ListItem from "./listItem/ListItem";
 import { chatExists, createChat } from "./utils/functions";
 
-export const UserList = (props: Partial<ChatState>) => {
-  const { user: currentUser } = props;
+export const UserList = (props: { currentUser: User }) => {
+  const { currentUser } = props;
 
-  const users = useAppSelector(selectUsers);
+  const users = useUsers();
 
   const [listItemActiveUid, setListItemActiveUid] = useState("");
 

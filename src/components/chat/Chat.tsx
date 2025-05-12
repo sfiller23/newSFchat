@@ -1,20 +1,21 @@
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
+import { db } from "../../api/firebase/api";
 import type { User } from "../../interfaces/auth";
-import { db } from "../../main";
-import { setCurrentChat, type ChatState } from "../../redux/chat/chatSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks/reduxHooks";
+import { useCurrentChat } from "../../redux/chat/chatSelectors";
+import { setCurrentChat } from "../../redux/chat/chatSlice";
+import { useAppDispatch } from "../../redux/hooks/reduxHooks";
 import "./_chat.scss";
 import ChatFooter from "./chatFooter/ChatFooter";
 import ChatHeader from "./chatHeader/ChatHeader";
 import Message from "./message/Message";
 
-const Chat = (props: Partial<ChatState>) => {
-  const { user } = props;
+const Chat = (props: { currentUser: User }) => {
+  const { currentUser } = props;
 
   const dispatch = useAppDispatch();
 
-  const chat = useAppSelector((state) => state.chatReducer.currentChat);
+  const currentChat = useCurrentChat();
 
   const [currentChatId, setCurrentChatId] = useState("");
 
@@ -60,12 +61,12 @@ const Chat = (props: Partial<ChatState>) => {
 
   return (
     <>
-      <ChatHeader currentChat={chat} user={user} />
+      <ChatHeader currentChat={currentChat} currentUser={currentUser} />
       <div ref={scrollRef} className="chat-message-board-container">
         <div className="chat-message-board">
-          {chat &&
-            chat.messages.length !== 0 &&
-            chat.messages.map((message) => {
+          {currentChat &&
+            currentChat.messages?.length !== 0 &&
+            currentChat.messages?.map((message) => {
               return (
                 <Message
                   key={message.sentTime}
@@ -73,13 +74,13 @@ const Chat = (props: Partial<ChatState>) => {
                   sentTime={message.sentTime}
                   senderId={message.senderId}
                   status={message.status}
-                  user={user as User}
+                  currentUser={currentUser}
                 />
               );
             })}
         </div>
       </div>
-      <ChatFooter currentChat={chat} user={user} />
+      <ChatFooter currentChat={currentChat} currentUser={currentUser} />
     </>
   );
 };

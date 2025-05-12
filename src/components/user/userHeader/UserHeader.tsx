@@ -3,28 +3,27 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../../UI/loader/Loader";
 import { PreviewState } from "../../../constants/enums";
 import { AppContext } from "../../../context/appContext/AppContext";
-import { AuthContext } from "../../../context/authContext/AuthContext";
+import type { User } from "../../../interfaces/auth";
 import { logoutReq } from "../../../redux/auth/authThunk";
-import { type ChatState, clearChat } from "../../../redux/chat/chatSlice";
+import { clearChat } from "../../../redux/chat/chatSlice";
 import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 import ImgPreviewButton from "../../common/imgPreviewButton/ImgPreviewButton";
 import "./_user-header.scss";
 
-const UserHeader = (props: Partial<ChatState>) => {
-  const { user } = props;
+const UserHeader = (props: { currentUser: User }) => {
+  const { currentUser } = props;
 
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
-  const authContext = useContext(AuthContext);
   const appContext = useContext(AppContext);
 
   const logOutHandler = async () => {
     try {
-      if (user) {
+      if (currentUser) {
         //await setLoggedInState(false, user.userId);
-        await dispatch(logoutReq(user.userId));
+        await dispatch(logoutReq(currentUser.userId));
         dispatch(clearChat());
         navigate("/");
       }
@@ -44,7 +43,7 @@ const UserHeader = (props: Partial<ChatState>) => {
       ) : (
         <>
           <div className="display-name-container">
-            <h3>{user?.displayName}</h3>
+            <h3>{currentUser.displayName}</h3>
           </div>
           <span className="user-img-container">
             {!!appContext?.state.imgProfileUrl && (

@@ -1,35 +1,38 @@
 import LoggedInIcon from "../../../UI/loggedInIcon/loggedInIcon";
-import { selectUsers } from "../../../redux/chat/chatSelectors";
-import type { ChatState } from "../../../redux/chat/chatSlice";
-import { useAppSelector } from "../../../redux/hooks/reduxHooks";
+import type { User } from "../../../interfaces/auth";
+import type { ChatObj } from "../../../interfaces/chat";
+import { useUsers } from "../../../redux/chat/chatSelectors";
 import "./_chat-header.scss";
 
-const ChatHeader = (props: Partial<ChatState>) => {
-  const { currentChat: chat, user } = props;
+const ChatHeader = (props: { currentChat: ChatObj; currentUser: User }) => {
+  const { currentChat, currentUser } = props;
 
-  const users = useAppSelector(selectUsers);
+  const users = useUsers();
+
   return (
     <div className="chat-header">
       <>
-        {chat?.writing?.status && chat.writing.writerID !== user?.userId && (
-          <span className="writing-gif-container">
-            <img src="/writing.gif" alt="Writing..." />
-          </span>
-        )}
-        {chat &&
-          (chat.admin.userId !== user?.userId ? (
+        {currentChat?.writing?.status &&
+          currentChat.writing.writerID !== currentUser?.userId && (
+            <span className="writing-gif-container">
+              <img src="/writing.gif" alt="Writing..." />
+            </span>
+          )}
+        {currentChat.chatId &&
+          (currentChat.admin?.userId !== currentUser?.userId ? (
             <>
               <span className="logged-in-icon-container">
                 {" "}
                 <LoggedInIcon
                   loggedIn={
-                    users.find((user) => user.userId === chat.admin.userId)
-                      ?.loggedIn
+                    users?.find(
+                      (user) => user.userId === currentChat.admin?.userId
+                    )?.loggedIn
                   }
                 />
               </span>
               <span>
-                <h3>{chat.admin.displayName}</h3>
+                <h3>{currentChat.admin?.displayName}</h3>
               </span>
             </>
           ) : (
@@ -38,13 +41,13 @@ const ChatHeader = (props: Partial<ChatState>) => {
                 <LoggedInIcon
                   loggedIn={
                     users.find(
-                      (user) => user.userId === chat.participant.userId
+                      (user) => user.userId === currentChat.participant.userId
                     )?.loggedIn
                   }
                 />
               </span>
               <span>
-                <h3>{chat.participant.displayName}</h3>
+                <h3>{currentChat.participant?.displayName}</h3>
               </span>
             </>
           ))}

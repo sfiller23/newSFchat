@@ -12,6 +12,7 @@ import {
 
 import {
   createEntity,
+  db,
   getAllEntities,
   getEntityFromCollection,
   updateEntity,
@@ -19,7 +20,6 @@ import {
 import { MessageStatus } from "../../constants/enums";
 import type { User } from "../../interfaces/auth";
 import type { ChatObj, Chats, Message } from "../../interfaces/chat";
-import { db } from "../../main";
 import type { AppDispatch } from "../store";
 import { setCurrentChat, setUser, setUsers } from "./chatSlice";
 import { updatedChatIds } from "./helpers";

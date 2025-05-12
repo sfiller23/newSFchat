@@ -3,16 +3,16 @@ import Chat from "../../components/chat/Chat";
 import UserHeader from "../../components/user/userHeader/UserHeader";
 import UserList from "../../components/user/userList/UserList";
 import UserSearch from "../../components/user/userSearch/UserSearch";
-import { selectUser } from "../../redux/chat/chatSelectors";
+import { useCurrentUser } from "../../redux/chat/chatSelectors";
 import { getUser } from "../../redux/chat/chatThunk";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks/reduxHooks";
+import { useAppDispatch } from "../../redux/hooks/reduxHooks";
 import Card from "../../UI/card/Card";
 import "./_home.scss";
 
 const Home = () => {
   const dispatch = useAppDispatch();
 
-  const user = useAppSelector(selectUser);
+  const currentUser = useCurrentUser();
 
   //const chats = useAppSelector((state) => state.chatReducer.chats);
 
@@ -40,9 +40,9 @@ const Home = () => {
       <span
         className={`users-container ${toggleCollapseButton ? "open" : "close"}`}
       >
-        <UserHeader user={user} />
+        <UserHeader currentUser={currentUser} />
         <UserSearch />
-        <UserList user={user} />
+        <UserList currentUser={currentUser} />
       </span>
       <span
         className={`collapse-button-container ${
@@ -63,7 +63,7 @@ const Home = () => {
         </button> */}
       </span>
       <span className="chat-container">
-        <Chat user={user} />
+        <Chat currentUser={currentUser} />
       </span>
     </Card>
   );

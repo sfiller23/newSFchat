@@ -3,11 +3,21 @@ import {
   doc,
   getDoc,
   getDocs,
+  getFirestore,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { db, storage } from "../../main";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { firebaseConfig } from "../../../firebase";
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth();
+export const storage = getStorage();
+export const db = getFirestore(app);
 
 export async function uploadAvatar(
   e: Event,

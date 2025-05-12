@@ -3,8 +3,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { createEntity, updateEntity } from "../../api/firebase/api";
-import { auth } from "../../main";
+import { auth, createEntity, updateEntity } from "../../api/firebase/api";
 import type { AppDispatch } from "../store";
 import { authenticate, logout } from "./authSlice";
 
