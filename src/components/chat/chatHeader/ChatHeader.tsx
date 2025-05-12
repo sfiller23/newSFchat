@@ -1,4 +1,5 @@
 import LoggedInIcon from "../../../UI/loggedInIcon/loggedInIcon";
+import { selectUsers } from "../../../redux/chat/chatSelectors";
 import type { ChatState } from "../../../redux/chat/chatSlice";
 import { useAppSelector } from "../../../redux/hooks/reduxHooks";
 import "./_chat-header.scss";
@@ -6,7 +7,7 @@ import "./_chat-header.scss";
 const ChatHeader = (props: Partial<ChatState>) => {
   const { currentChat: chat, user } = props;
 
-  const users = useAppSelector((state) => state.chatReducer.users);
+  const users = useAppSelector(selectUsers);
   return (
     <div className="chat-header">
       <>

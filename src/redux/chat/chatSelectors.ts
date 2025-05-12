@@ -15,7 +15,7 @@ export const selectUser = createSelector(
 export const selectUsers = createSelector(
   (state) => state.chatReducer.users,
   (users): User[] =>
-    [...users].map((user) => {
+    users.map((user: User) => {
       return {
         userId: user?.userId,
         displayName: user?.displayName,

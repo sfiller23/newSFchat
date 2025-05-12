@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { PiNavigationArrowThin } from "react-icons/pi";
 import { v4 as uid } from "uuid";
 import {
-  getUserById,
   sendNewMessage,
   setMessageArrived,
   setWritingState,
 } from "../../../redux/chat/chatThunk";
-import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../../redux/hooks/reduxHooks";
 
 import { MessageStatus } from "../../../constants/enums";
 import type { User } from "../../../interfaces/auth";
@@ -15,13 +17,16 @@ import type {
   ChatObj,
   Message as MessageProps,
 } from "../../../interfaces/chat";
-import { addMessage, type ChatState } from "../../../redux/chat/chatSlice";
+import { selectUsers } from "../../../redux/chat/chatSelectors";
+import { type ChatState } from "../../../redux/chat/chatSlice";
 import { setMessageSeen } from "../../../utils/common-functions";
 import "./_chat-footer.scss";
-import { getUpdateUserChatIds } from "./utils/functions";
+import { addChatId } from "./utils/functions";
 
 const ChatFooter = (props: Partial<ChatState>) => {
   const { currentChat, user } = props;
+
+  const users = useAppSelector(selectUsers);
 
   const [messageText, setMessageText] = useState("");
   const [isChatActive, setIsChatActive] = useState(false);
@@ -46,14 +51,10 @@ const ChatFooter = (props: Partial<ChatState>) => {
 
   useEffect(() => {
     if (receiverId) {
-      (async () => {
-        const userFromList = await dispatch(getUserById(receiverId));
-        if (userFromList) {
-          setReceiver(userFromList as User);
-        }
-      })();
+      const receiver = users.find((user) => user.userId === receiverId);
+      if (receiver) setReceiver(receiver);
     }
-  }, [receiverId]);
+  }, [receiverId, users]);
 
   const setWriting = (isWritingMode: boolean) => {
     if (currentChat && user) {
@@ -82,9 +83,12 @@ const ChatFooter = (props: Partial<ChatState>) => {
       };
       if (currentChat) {
         if (currentChat.chatId && receiver && user) {
-          dispatch(addMessage(messageObj));
-          const updatedAdmin = getUpdateUserChatIds(user, messageObj);
-          const updatedParticipant = getUpdateUserChatIds(receiver, messageObj);
+          //dispatch(addMessage(messageObj));
+          //console.log(user, "user before manipulation");
+          //console.log(receiver, "user before manipulation");
+          const updatedAdmin = addChatId(user, messageObj, true);
+          const updatedParticipant = addChatId(receiver, messageObj, false);
+          //console.log(updatedParticipant, "updatedParticipant");
           await dispatch(
             sendNewMessage(messageObj, updatedAdmin, updatedParticipant)
           );
