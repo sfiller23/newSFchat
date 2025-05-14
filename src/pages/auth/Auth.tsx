@@ -1,6 +1,5 @@
-import { type BaseSyntheticEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import ImgPreviewButton from "../../components/common/imgPreviewButton/ImgPreviewButton";
 import { loginReq, registerReq } from "../../redux/auth/authThunk";
 import { useAppDispatch } from "../../redux/hooks/reduxHooks";
 import Card from "../../UI/card/Card";
@@ -17,13 +16,15 @@ const Auth = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (
-    e: BaseSyntheticEvent | Event,
+    e: FormEvent<HTMLFormElement>,
     location: string
   ) => {
     e.preventDefault();
-    const email = e.target[0].value;
-    const password = e.target[1].value;
-    const repeatPassword = e.target[2].value;
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const repeatPassword = formData.get("repeatPassword") as string | null;
+    const username = formData.get("username") as string | null;
 
     if (repeatPassword) {
       if (password !== repeatPassword) {
@@ -33,14 +34,12 @@ const Auth = () => {
     }
 
     try {
-      let displayName: string = "";
-
       setIsLoading(true);
 
       if (location === "/login") {
         await dispatch(loginReq(email, password));
       } else if (location === "/register") {
-        displayName = e.target[3].value;
+        const displayName = username as string;
         await dispatch(registerReq(email, password, displayName));
       }
       navigate("/");
@@ -93,7 +92,6 @@ const Auth = () => {
               required
             />
             <br />
-            <ImgPreviewButton />
           </>
         )}
         <button type="submit" className="auth-button">

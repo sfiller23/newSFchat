@@ -6,12 +6,14 @@ export interface ChatState {
   user?: User;
   users: User[];
   currentChat?: ChatObj;
+  isNewChatMessage: boolean;
 }
 
 const initialState: ChatState = {
   user: undefined,
   users: [],
   currentChat: undefined,
+  isNewChatMessage: false,
 };
 
 const chatSlice = createSlice({
@@ -39,8 +41,8 @@ const chatSlice = createSlice({
     addMessage: (state, action) => {
       state.currentChat?.messages.push(action.payload);
     },
-    setAuthenticatedUser: (state, action) => {
-      state.user = action.payload;
+    setIsNewChatMessage: (state, action) => {
+      state.isNewChatMessage = action.payload;
     },
     searchUser: (state, action) => {
       state.users = state.users.filter((user) =>
@@ -55,7 +57,7 @@ const chatSlice = createSlice({
 
 export const {
   searchUser,
-  setAuthenticatedUser,
+  setIsNewChatMessage,
   updateUser,
   clearChat,
   setUser,

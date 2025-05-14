@@ -1,50 +1,47 @@
-import { BaseSyntheticEvent, useContext, useState } from "react";
+import { BaseSyntheticEvent, useState } from "react";
 import { HiOutlineCloudUpload } from "react-icons/hi";
 import { RiImageAddFill } from "react-icons/ri";
 import { uploadAvatar } from "../../../api/firebase/api";
 import { PreviewState } from "../../../constants/enums";
-import { AppContext } from "../../../context/appContext/AppContext";
-import { AuthContext } from "../../../context/authContext/AuthContext";
-import { useAppSelector } from "../../../redux/hooks/reduxHooks";
+import type { User } from "../../../interfaces/auth";
 import { useHandleImgPick } from "../../../utils/Hooks";
 import "./_img-preview-button.scss";
 
 interface imgPreviewButtonProps {
   action?: PreviewState;
   inForm?: boolean;
+  currentUser: User;
+  setLoadingState: (isLoading: boolean) => void;
+  setImageProfileChange: () => void;
 }
 
 const ImgPreviewButton = (props: imgPreviewButtonProps) => {
-  const authContext = useContext(AuthContext);
-  const appContext = useContext(AppContext);
+  const {
+    action = PreviewState.ADD,
+    inForm = true,
+    setLoadingState,
+    setImageProfileChange,
+    currentUser,
+  } = props;
 
-  const user = useAppSelector((state) => state.chatReducer.user);
-
-  const { action = PreviewState.ADD, inForm = true } = props;
   const { picture, setPicture, imgData, handleImgPreview } = useHandleImgPick();
+
   const [isPreview, setIsPreview] = useState(false);
 
   const handleAvatarUpload = async (e: BaseSyntheticEvent | Event) => {
     try {
-      appContext?.setLoadingState(true);
-      if (picture && (authContext?.state.user?.userId || user?.userId)) {
-        await uploadAvatar(
-          e as Event,
-          picture,
-          authContext?.state.user?.userId
-            ? authContext?.state.user?.userId
-            : (user?.userId as string)
-        );
+      setLoadingState(true);
+      if (picture && currentUser.userId) {
+        await uploadAvatar(e as Event, picture, currentUser.userId);
       }
 
       setPicture(null);
       setIsPreview(false);
-      appContext?.setImageProfileChange();
+      setImageProfileChange();
     } catch (error) {
-      alert(error);
       console.error(error);
     } finally {
-      appContext?.setLoadingState(false);
+      setLoadingState(false);
     }
   };
 

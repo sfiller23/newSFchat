@@ -4,7 +4,7 @@ import type { ChatObj } from "../../../interfaces/chat";
 import { useUsers } from "../../../redux/chat/chatSelectors";
 import "./_chat-header.scss";
 
-const ChatHeader = (props: { currentChat: ChatObj; currentUser: User }) => {
+const ChatHeader = (props: { currentChat?: ChatObj; currentUser: User }) => {
   const { currentChat, currentUser } = props;
 
   const users = useUsers();
@@ -18,11 +18,10 @@ const ChatHeader = (props: { currentChat: ChatObj; currentUser: User }) => {
               <img src="/writing.gif" alt="Writing..." />
             </span>
           )}
-        {currentChat.chatId &&
+        {currentChat?.chatId &&
           (currentChat.admin?.userId !== currentUser?.userId ? (
             <>
               <span className="logged-in-icon-container">
-                {" "}
                 <LoggedInIcon
                   loggedIn={
                     users?.find(

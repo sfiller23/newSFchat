@@ -20,28 +20,14 @@ const Chat = (props: { currentUser: User }) => {
   const [currentChatId, setCurrentChatId] = useState("");
 
   const chatId = localStorage.getItem("chatId");
-  //const [chat, setChat] = useState<ChatObj>();
-
-  //const location = useLocation();
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatId) {
-      // (async () => {
-      //   if (currentChatId !== chatId) {
-      //     await dispatch(getChatById(chatId));
       setCurrentChatId(chatId);
-      //   }
-      // })();
     }
   }, [chatId]);
-
-  // useEffect(() => {
-  //   if (currentChat) {
-  //     setChat(chats[currentChat.chatId]);
-  //   }
-  // }, [chats, currentChat]);
 
   useEffect(() => {
     const q = query(

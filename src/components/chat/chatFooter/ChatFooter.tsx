@@ -10,7 +10,7 @@ import { useUsers } from "../../../redux/chat/chatSelectors";
 import "./_chat-footer.scss";
 import { getMessageObj, onFocusHandler, updateChat } from "./utils/functions";
 
-const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
+const ChatFooter = (props: { currentChat?: ChatObj; currentUser: User }) => {
   const { currentChat, currentUser } = props;
 
   const users = useUsers();
@@ -31,10 +31,10 @@ const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
   }, [bottomRef.current?.scrollIntoView]);
 
   useEffect(() => {
-    if (currentChat.chatId) {
+    if (currentChat?.chatId) {
       setIsChatActive(true);
     }
-  }, [currentChat.chatId]);
+  }, [currentChat?.chatId]);
 
   useEffect(() => {
     if (receiverId) {
@@ -97,7 +97,7 @@ const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
             }}
             onFocus={() => {
               onFocusHandler(
-                currentChat,
+                currentChat as ChatObj,
                 currentUser,
                 receiver as User,
                 dispatch
@@ -110,7 +110,7 @@ const ChatFooter = (props: { currentChat: ChatObj; currentUser: User }) => {
               sendMessage(
                 currentUser,
                 messageText,
-                currentChat,
+                currentChat as ChatObj,
                 receiver as User
               )
             }

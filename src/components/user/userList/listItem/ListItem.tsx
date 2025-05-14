@@ -1,7 +1,11 @@
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import LoggedInIcon from "../../../../UI/loggedInIcon/loggedInIcon";
 import type { User } from "../../../../interfaces/auth";
-import type { ChatState } from "../../../../redux/chat/chatSlice";
+import {
+  setIsNewChatMessage,
+  type ChatState,
+} from "../../../../redux/chat/chatSlice";
+import { useAppDispatch } from "../../../../redux/hooks/reduxHooks";
 import { isNewMessage } from "../../../../utils/common-functions";
 import "./_list-item.scss";
 
@@ -13,6 +17,21 @@ interface ListItemProps extends Partial<ChatState> {
 
 const ListItem = (props: ListItemProps) => {
   const { currentUser, user, handleClick, listItemActiveUid } = props;
+
+  const [isNewUserMessage, setIsNewUserMessage] = useState(false);
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (user && user.userId === isNewMessage(user, currentUser)) {
+      setIsNewUserMessage(true);
+      dispatch(setIsNewChatMessage(true));
+    } else {
+      setIsNewUserMessage(false);
+      dispatch(setIsNewChatMessage(false));
+    }
+  }, [user, currentUser]);
+
   const activeUid = localStorage.getItem("activeUid");
 
   return (
@@ -25,11 +44,7 @@ const ListItem = (props: ListItemProps) => {
         (activeUid && activeUid === user?.userId && "active")
       } 
 
-       ${
-         user?.chatIds &&
-         user.userId === isNewMessage(user, currentUser) &&
-         "new-message"
-       }`}
+       ${isNewUserMessage && "new-message"}`}
     >
       <LoggedInIcon loggedIn={user?.loggedIn} />
       <h5>{user?.displayName}</h5>

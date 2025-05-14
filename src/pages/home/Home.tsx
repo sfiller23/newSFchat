@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import { TbLayoutSidebarLeftCollapseFilled } from "react-icons/tb";
 import Chat from "../../components/chat/Chat";
 import UserHeader from "../../components/user/userHeader/UserHeader";
 import UserList from "../../components/user/userList/UserList";
 import UserSearch from "../../components/user/userSearch/UserSearch";
-import { useCurrentUser } from "../../redux/chat/chatSelectors";
+import {
+  useCurrentUser,
+  useIsNewChatMessage,
+} from "../../redux/chat/chatSelectors";
 import { getUser } from "../../redux/chat/chatThunk";
 import { useAppDispatch } from "../../redux/hooks/reduxHooks";
 import Card from "../../UI/card/Card";
@@ -14,7 +18,7 @@ const Home = () => {
 
   const currentUser = useCurrentUser();
 
-  //const chats = useAppSelector((state) => state.chatReducer.chats);
+  const isNewChatMessage = useIsNewChatMessage();
 
   const [toggleCollapseButton, setToggleCollapseButton] = useState(false);
   //const [newMessage, setNewMessage] = useState(false);
@@ -31,9 +35,10 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  // useEffect(() => {
-  //   setNewMessage(!!isNewMessage(user as User, user as User, chats));
-  // }, [user]);
+  const handleClick = () => {
+    setToggleCollapseButton((s) => !s);
+    //dispatch(setIsNewChatMessage(false));
+  };
 
   return (
     <Card classNames={["chat-card"]}>
@@ -49,10 +54,10 @@ const Home = () => {
           toggleCollapseButton && "open"
         } `}
       >
-        {/* <button
-          onClick={() => setToggleCollapseButton((s) => !s)}
+        <button
+          onClick={handleClick}
           className={`collapse-button ${
-            newMessage && toggleCollapseButton ? "new-message" : ""
+            isNewChatMessage && toggleCollapseButton ? "new-message" : ""
           }`}
         >
           <TbLayoutSidebarLeftCollapseFilled
@@ -60,7 +65,7 @@ const Home = () => {
               toggleCollapseButton ? "open" : "close"
             }`}
           />
-        </button> */}
+        </button>
       </span>
       <span className="chat-container">
         <Chat currentUser={currentUser} />

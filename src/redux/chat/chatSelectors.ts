@@ -2,6 +2,7 @@ import { createSelector } from "@reduxjs/toolkit";
 import type { User } from "../../interfaces/auth";
 import type { ChatObj } from "../../interfaces/chat";
 import { useAppSelector } from "../hooks/reduxHooks";
+import type { RootState } from "../store";
 
 const selectUser = createSelector(
   (state) => state.chatReducer.user,
@@ -47,3 +48,8 @@ const selectCurrentChat = createSelector(
 );
 
 export const useCurrentChat = () => useAppSelector(selectCurrentChat);
+
+const selectIsNewChatMessage = (state: RootState) =>
+  state.chatReducer.isNewChatMessage;
+
+export const useIsNewChatMessage = () => useAppSelector(selectIsNewChatMessage);

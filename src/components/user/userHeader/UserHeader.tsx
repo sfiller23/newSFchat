@@ -1,8 +1,9 @@
-import { useContext } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../UI/loader/Loader";
+import { getAvatar } from "../../../api/firebase/api";
 import { PreviewState } from "../../../constants/enums";
-import { AppContext } from "../../../context/appContext/AppContext";
+import { useAppContext } from "../../../context/appContext/useAppContext";
 import type { User } from "../../../interfaces/auth";
 import { logoutReq } from "../../../redux/auth/authThunk";
 import { clearChat } from "../../../redux/chat/chatSlice";
@@ -17,7 +18,36 @@ const UserHeader = (props: { currentUser: User }) => {
 
   const navigate = useNavigate();
 
-  const appContext = useContext(AppContext);
+  const {
+    setImageProfile,
+    setLoadingState,
+    setImageProfileChange,
+    imgProfileUrl,
+    isLoading,
+    imgProfileChange,
+  } = useAppContext();
+
+  const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    let imgUrl: string | undefined = "";
+    const getProfileUrl = async () => {
+      try {
+        if (userId) {
+          setLoadingState(true);
+          imgUrl = await getAvatar(userId);
+          if (imgUrl) {
+            setImageProfile(imgUrl);
+          }
+        }
+      } catch {
+        console.log("No image file");
+      } finally {
+        setLoadingState(false);
+      }
+    };
+    getProfileUrl();
+  }, [userId, imgProfileChange, setLoadingState, setImageProfile]);
 
   const logOutHandler = async () => {
     try {
@@ -33,12 +63,8 @@ const UserHeader = (props: { currentUser: User }) => {
   };
 
   return (
-    <div
-      className={`user-header ${
-        !appContext?.state.imgProfileUrl ? "no-image" : ""
-      }`}
-    >
-      {appContext?.state.isLoading ? (
+    <div className={`user-header ${!imgProfileUrl ? "no-image" : ""}`}>
+      {isLoading ? (
         <Loader className="profile-image-loader" />
       ) : (
         <>
@@ -46,19 +72,18 @@ const UserHeader = (props: { currentUser: User }) => {
             <h3>{currentUser.displayName}</h3>
           </div>
           <span className="user-img-container">
-            {!!appContext?.state.imgProfileUrl && (
+            {!!imgProfileUrl && (
               <img
                 className="user-img"
-                src={appContext?.state.imgProfileUrl}
+                src={imgProfileUrl}
                 alt="Profile Image"
               />
             )}
             <ImgPreviewButton
-              action={
-                !appContext?.state.imgProfileUrl
-                  ? PreviewState.EDIT
-                  : PreviewState.ADD
-              }
+              currentUser={currentUser}
+              setLoadingState={setLoadingState}
+              setImageProfileChange={setImageProfileChange}
+              action={!imgProfileUrl ? PreviewState.ADD : PreviewState.EDIT}
               inForm={false}
             />
           </span>
