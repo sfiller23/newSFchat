@@ -14,8 +14,8 @@ import {
   initNewChat,
   setChatSeen,
 } from "../../../redux/chat/chatThunk";
+import { chatExists, createChat } from "../../../utils/chatHelpers";
 import ListItem from "./listItem/ListItem";
-import { chatExists, createChat } from "./utils/functions";
 
 export const UserList = (props: { currentUser: User }) => {
   const { currentUser } = props;
@@ -47,6 +47,8 @@ export const UserList = (props: { currentUser: User }) => {
     return () => {
       unsubscribe();
     };
+    // dispatch is a stable function no need to include it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openChat = useCallback(async (admin: User, participant: User) => {
@@ -63,6 +65,8 @@ export const UserList = (props: { currentUser: User }) => {
     if (chatObj.chatId) {
       await dispatch(setChatSeen(admin, participant, chatObj.chatId));
     }
+    // dispatch is a stable function no need to include it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setUserActive = useCallback((uid: string) => {

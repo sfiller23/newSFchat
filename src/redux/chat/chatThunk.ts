@@ -1,14 +1,4 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-
-import {
-  arrayUnion,
-  collection,
-  doc,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 
 import {
   createEntity,
@@ -19,7 +9,7 @@ import {
 } from "../../api/firebase/api";
 import { MessageStatus } from "../../constants/enums";
 import type { User } from "../../interfaces/auth";
-import type { ChatObj, Chats, Message } from "../../interfaces/chat";
+import type { ChatObj, Message } from "../../interfaces/chat";
 import type { AppDispatch } from "../store";
 import { setCurrentChat, setUser, setUsers } from "./chatSlice";
 import { updatedChatIds } from "./helpers";
@@ -30,7 +20,6 @@ export function getUser(userId: string) {
       const user = await getEntityFromCollection("users", userId);
       dispatch(setUser(user));
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
@@ -42,7 +31,6 @@ export function getUsers() {
       const users = await getAllEntities("users");
       dispatch(setUsers(users));
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
@@ -54,7 +42,6 @@ export function getChatById(chatId: string) {
       const currentChat = await getEntityFromCollection("chats", chatId);
       dispatch(setCurrentChat(currentChat));
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
@@ -72,7 +59,6 @@ export function initNewChat(chatObj: ChatObj) {
         chatIds: chatObj.participant.chatIds,
       });
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
@@ -95,7 +81,6 @@ export function sendNewMessage(
         chatIds: updatedParticipant.chatIds,
       });
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
@@ -109,7 +94,6 @@ export function setMessageArrived(chatId: string) {
       messages[messages.length - 1].status = MessageStatus.ARRIVED;
       await updateEntity("chats", chatId, { messages: messages });
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
@@ -127,7 +111,6 @@ export function setChatSeen(admin: User, participant: User, chatId: string) {
         chatIds: newParticipantChatIdsObj,
       });
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
@@ -143,123 +126,23 @@ export function setNewMessageSeen(chatId: string) {
       });
       await updateEntity("chats", chatId, { messages: messages });
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
 }
 
-export function getUserById(userId: string) {
-  return async function setNewMessageSeenThunk() {
+export function setWritingState(
+  isWriting: boolean,
+  chatId: string,
+  writerID: string
+) {
+  return async function setWritingStateThunk() {
     try {
-      const user = await getEntityFromCollection("users", userId);
-      return user;
+      await updateEntity("chats", chatId, {
+        writing: { status: isWriting, writerID: writerID },
+      });
     } catch (error) {
-      alert(error);
       console.error(error);
     }
   };
 }
-
-export const setWritingState = createAsyncThunk(
-  "setWritingState",
-  async (args: { isWriting: boolean; chatId: string; writerID: string }) => {
-    await updateDoc(doc(db, "chats", args.chatId), {
-      writing: { status: args.isWriting, writerID: args.writerID },
-    });
-  }
-);
-
-export const setMessageSeenReq = createAsyncThunk(
-  "setMessageSeen",
-  async (chatId: string) => {
-    const q = query(collection(db, "chats"), where("chatId", "==", chatId));
-    const querySnapshot = await getDocs(q);
-    let chat: Partial<ChatObj> = {};
-    querySnapshot.forEach((doc) => {
-      chat = { chatId: doc.id, ...doc.data() };
-    });
-    if (chat.messages) {
-      chat.messages.forEach((message) => {
-        message.status = MessageStatus.SEEN;
-      });
-      await updateDoc(doc(db, "chats", chatId), {
-        messages: chat.messages,
-      });
-    }
-  }
-);
-
-export const updateChat = createAsyncThunk(
-  "updateChat",
-  async (args: { chatId: string; message: Message }) => {
-    try {
-      if (args.chatId) {
-        await updateDoc(doc(db, "chats", args.chatId), {
-          messages: arrayUnion(args.message),
-        });
-        const q = query(
-          collection(db, "chats"),
-          where("chatId", "==", args.chatId)
-        );
-        const querySnapshot = await getDocs(q);
-        let chat: Partial<ChatObj> = {};
-        querySnapshot.forEach((doc) => {
-          chat = { chatId: doc.id, ...doc.data() };
-        });
-        if (chat.messages) {
-          chat.messages[chat.messages.length - 1].status =
-            MessageStatus.ARRIVED;
-          await updateDoc(doc(db, "chats", args.chatId), {
-            messages: chat.messages,
-          });
-        }
-      }
-    } catch (error) {
-      alert(`${error} In updateChat`);
-    }
-  }
-);
-
-export const getUserById2 = createAsyncThunk(
-  "getUserById",
-  async (userId: string) => {
-    try {
-      const q = query(collection(db, "users"), where("userId", "==", userId));
-      const querySnapshot = await getDocs(q);
-      let user: Partial<User> = {};
-      querySnapshot.forEach((doc) => {
-        user = { userId: doc.id, ...doc.data() };
-      });
-      return user;
-    } catch (error) {
-      alert(`${error} In getUserById`);
-    }
-  }
-);
-
-// export const getUsers = createAsyncThunk("getUsers", async () => {
-//   try {
-//     const querySnapshot = await getDocs(collection(db, "users"));
-//     const usersArray: User[] = [];
-//     querySnapshot.forEach((doc) => {
-//       usersArray.push({ userId: doc.id, ...doc.data() } as User);
-//     });
-//     return usersArray;
-//   } catch (error) {
-//     alert(`${error} In getDocs`);
-//   }
-// });
-
-export const getChats = createAsyncThunk("getChats", async () => {
-  try {
-    const querySnapshot = await getDocs(collection(db, "chats"));
-    let chatObj: Partial<Chats> = {};
-    querySnapshot.forEach((doc) => {
-      chatObj = { ...chatObj, [doc.id]: { ...doc.data() } } as Chats;
-    });
-    return chatObj;
-  } catch (error) {
-    alert(`${error} In getChats`);
-  }
-});

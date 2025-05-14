@@ -43,6 +43,8 @@ const Chat = (props: { currentUser: User }) => {
     return () => {
       unsubscribe();
     };
+    // dispatch is a stable function no need to include it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChatId]);
 
   return (

@@ -1,4 +1,4 @@
-import { BaseSyntheticEvent, useState } from "react";
+import { type BaseSyntheticEvent, useState } from "react";
 
 export const useHandleImgPick = () => {
   const [picture, setPicture] = useState(null);

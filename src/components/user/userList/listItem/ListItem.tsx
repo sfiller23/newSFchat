@@ -6,7 +6,7 @@ import {
   type ChatState,
 } from "../../../../redux/chat/chatSlice";
 import { useAppDispatch } from "../../../../redux/hooks/reduxHooks";
-import { isNewMessage } from "../../../../utils/common-functions";
+import { isNewMessage } from "../../../../utils/messageHelpers";
 import "./_list-item.scss";
 
 interface ListItemProps extends Partial<ChatState> {
@@ -30,6 +30,8 @@ const ListItem = (props: ListItemProps) => {
       setIsNewUserMessage(false);
       dispatch(setIsNewChatMessage(false));
     }
+    // dispatch is a stable function no need to include it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, currentUser]);
 
   const activeUid = localStorage.getItem("activeUid");

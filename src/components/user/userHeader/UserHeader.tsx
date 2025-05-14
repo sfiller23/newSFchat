@@ -8,8 +8,8 @@ import type { User } from "../../../interfaces/auth";
 import { logoutReq } from "../../../redux/auth/authThunk";
 import { clearChat } from "../../../redux/chat/chatSlice";
 import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
-import ImgPreviewButton from "../../common/imgPreviewButton/ImgPreviewButton";
 import "./_user-header.scss";
+import ImgPreviewButton from "./imgPreviewButton/ImgPreviewButton";
 
 const UserHeader = (props: { currentUser: User }) => {
   const { currentUser } = props;
@@ -52,7 +52,6 @@ const UserHeader = (props: { currentUser: User }) => {
   const logOutHandler = async () => {
     try {
       if (currentUser) {
-        //await setLoggedInState(false, user.userId);
         await dispatch(logoutReq(currentUser.userId));
         dispatch(clearChat());
         navigate("/");
@@ -84,7 +83,6 @@ const UserHeader = (props: { currentUser: User }) => {
               setLoadingState={setLoadingState}
               setImageProfileChange={setImageProfileChange}
               action={!imgProfileUrl ? PreviewState.ADD : PreviewState.EDIT}
-              inForm={false}
             />
           </span>
         </>

@@ -1,15 +1,14 @@
-import { BaseSyntheticEvent, useState } from "react";
+import { type BaseSyntheticEvent, useState } from "react";
 import { HiOutlineCloudUpload } from "react-icons/hi";
 import { RiImageAddFill } from "react-icons/ri";
-import { uploadAvatar } from "../../../api/firebase/api";
-import { PreviewState } from "../../../constants/enums";
-import type { User } from "../../../interfaces/auth";
-import { useHandleImgPick } from "../../../utils/Hooks";
+import { uploadAvatar } from "../../../../api/firebase/api";
+import { PreviewState } from "../../../../constants/enums";
+import type { User } from "../../../../interfaces/auth";
+import { useHandleImgPick } from "../../../../utils/Hooks";
 import "./_img-preview-button.scss";
 
 interface imgPreviewButtonProps {
   action?: PreviewState;
-  inForm?: boolean;
   currentUser: User;
   setLoadingState: (isLoading: boolean) => void;
   setImageProfileChange: () => void;
@@ -18,7 +17,6 @@ interface imgPreviewButtonProps {
 const ImgPreviewButton = (props: imgPreviewButtonProps) => {
   const {
     action = PreviewState.ADD,
-    inForm = true,
     setLoadingState,
     setImageProfileChange,
     currentUser,
@@ -59,7 +57,7 @@ const ImgPreviewButton = (props: imgPreviewButtonProps) => {
         }}
       />
 
-      {!inForm && imgData && isPreview && (
+      {imgData && isPreview && (
         <button onClick={handleAvatarUpload} className="avatar-upload-button">
           <HiOutlineCloudUpload className="upload-avatar-icon" size={20} />
           <label className="upload-avatar-label">Upload</label>

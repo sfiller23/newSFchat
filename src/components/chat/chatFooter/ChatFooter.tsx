@@ -7,8 +7,9 @@ import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 import type { User } from "../../../interfaces/auth";
 import type { ChatObj } from "../../../interfaces/chat";
 import { useUsers } from "../../../redux/chat/chatSelectors";
+import { onFocusHandler, updateChat } from "../../../utils/chatHelpers";
+import { getMessageObj } from "../../../utils/messageHelpers";
 import "./_chat-footer.scss";
-import { getMessageObj, onFocusHandler, updateChat } from "./utils/functions";
 
 const ChatFooter = (props: { currentChat?: ChatObj; currentUser: User }) => {
   const { currentChat, currentUser } = props;
@@ -46,11 +47,7 @@ const ChatFooter = (props: { currentChat?: ChatObj; currentUser: User }) => {
   const setWriting = (isWritingMode: boolean) => {
     if (currentChat && currentUser) {
       dispatch(
-        setWritingState({
-          isWriting: isWritingMode,
-          chatId: currentChat.chatId,
-          writerID: currentUser.userId,
-        })
+        setWritingState(isWritingMode, currentChat.chatId, currentUser.userId)
       );
     }
   };

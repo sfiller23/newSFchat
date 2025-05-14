@@ -21,7 +21,6 @@ const Home = () => {
   const isNewChatMessage = useIsNewChatMessage();
 
   const [toggleCollapseButton, setToggleCollapseButton] = useState(false);
-  //const [newMessage, setNewMessage] = useState(false);
 
   const userId = localStorage.getItem("userId");
 
@@ -37,7 +36,6 @@ const Home = () => {
 
   const handleClick = () => {
     setToggleCollapseButton((s) => !s);
-    //dispatch(setIsNewChatMessage(false));
   };
 
   return (
