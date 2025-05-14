@@ -43,7 +43,7 @@ const chatSlice = createSlice({
       state.currentChat = action.payload;
     },
     updateUser: (state, action) => {
-      const userIndex = state.users
+      let userIndex = state.users
         .map((user) => user.userId)
         .indexOf(action.payload.userId);
       state.users[userIndex] = action.payload;
@@ -51,6 +51,11 @@ const chatSlice = createSlice({
       if (state.users[userIndex].userId === state.user?.userId) {
         state.user = action.payload;
       }
+      //update users in the user list bar
+      userIndex = state.sideBarUsers
+        .map((user) => user.userId)
+        .indexOf(action.payload.userId);
+      state.sideBarUsers[userIndex] = action.payload;
     },
     addMessage: (state, action) => {
       state.currentChat?.messages.push(action.payload);
