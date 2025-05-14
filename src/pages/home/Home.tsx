@@ -13,6 +13,13 @@ import { useAppDispatch } from "../../redux/hooks/reduxHooks";
 import Card from "../../UI/card/Card";
 import "./_home.scss";
 
+/**
+ * Home Component
+ * This component serves as the main page of the chat application. It includes the user list,
+ * user search, chat interface, and a collapsible sidebar for managing users.
+ * It also fetches the current user's data and listens for new chat messages.
+ */
+
 const Home = () => {
   const dispatch = useAppDispatch();
 
@@ -20,6 +27,7 @@ const Home = () => {
 
   const isNewChatMessage = useIsNewChatMessage();
 
+  // State to manage the collapse/expand state of the user sidebar (only for mobile view)
   const [toggleCollapseButton, setToggleCollapseButton] = useState(false);
 
   const userId = localStorage.getItem("userId");
@@ -47,6 +55,7 @@ const Home = () => {
         <UserSearch />
         <UserList currentUser={currentUser} />
       </span>
+      {/* Collapse Button (only for mobile view)*/}
       <span
         className={`collapse-button-container ${
           toggleCollapseButton && "open"

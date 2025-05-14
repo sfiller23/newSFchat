@@ -6,6 +6,13 @@ import Card from "../../UI/card/Card";
 import Loader from "../../UI/loader/Loader";
 import "./_auth.scss";
 
+/**
+ * Auth Component
+ * This component handles user authentication, including login and registration.
+ * It dynamically renders the appropriate form based on the current route ("/login" or "/register").
+ * It also manages form submission, validation, and interaction with the Redux store.
+ */
+
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,6 +43,7 @@ const Auth = () => {
     try {
       setIsLoading(true);
 
+      // Dispatch login or registration actions based on the route
       if (location === "/login") {
         await dispatch(loginReq(email, password));
       } else if (location === "/register") {
@@ -75,6 +83,8 @@ const Auth = () => {
           required
         />
         <br />
+
+        {/* Additional Inputs for Registration */}
         {authUrl === "/register" && (
           <>
             <input
@@ -96,6 +106,7 @@ const Auth = () => {
         <button type="submit" className="auth-button">
           {authUrl === "/register" ? "Register" : "Login"}
         </button>
+        {/* Navigation Link for Switching Between Login and Registration */}
         <p>
           {`${authUrl === "/register" ? "Already registerd?" : "No Account?"}`}{" "}
           <Link

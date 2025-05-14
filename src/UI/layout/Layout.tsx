@@ -1,10 +1,7 @@
+import type { ReactNode } from "react";
 import "./_layout.scss";
 
-interface AppChildren {
-  children: string | JSX.Element | JSX.Element[];
-}
-
-const Layout = (props: AppChildren) => {
+const Layout = (props: { children: ReactNode }) => {
   const { children } = props;
   return <div className="app-container">{children}</div>;
 };

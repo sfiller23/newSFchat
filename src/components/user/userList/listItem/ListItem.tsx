@@ -15,6 +15,13 @@ interface ListItemProps extends Partial<ChatState> {
   listItemActiveUid: string;
 }
 
+/**
+ * ListItem Component
+ * This component represents an individual user in the user list. It displays the user's name,
+ * online status, and highlights if there is a new message from the user. It also handles
+ * user selection and interaction.
+ */
+
 const ListItem = (props: ListItemProps) => {
   const { currentUser, user, handleClick, listItemActiveUid } = props;
 
@@ -22,10 +29,14 @@ const ListItem = (props: ListItemProps) => {
 
   const dispatch = useAppDispatch();
 
+  /**
+   * Checks if there is a new message from the user and updates the state.
+   * Also updates the Redux store to indicate if there is a new chat message.
+   */
   useEffect(() => {
     if (user && user.userId === isNewMessage(user, currentUser)) {
       setIsNewUserMessage(true);
-      dispatch(setIsNewChatMessage(true));
+      dispatch(setIsNewChatMessage(true)); // The global state is needed for mobile view (there is an indicator that shows that there is a new message from some users)
     } else {
       setIsNewUserMessage(false);
       dispatch(setIsNewChatMessage(false));
@@ -42,8 +53,9 @@ const ListItem = (props: ListItemProps) => {
         await handleClick(user?.userId as string, currentUser, user as User);
       }}
       className={`list-item ${
+        // Get active user id from state or localStorage (stable on refresh)
         (listItemActiveUid === user?.userId && "active") ||
-        (activeUid && activeUid === user?.userId && "active")
+        (activeUid === user?.userId && "active")
       } 
 
        ${isNewUserMessage && "new-message"}`}

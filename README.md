@@ -1,54 +1,57 @@
-# React + TypeScript + Vite
+# NewSFChat
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+NewSFChat is a real-time demo chat application built with React, Redux, Firebase, and TypeScript. It provides a seamless user experience for messaging, user management, and chat functionality.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Real-Time Messaging**: Powered by Firebase Firestore for real-time updates.
+- **User Authentication**: Manage user sessions and authentication.
+- **Redux State Management**: Centralized state management using Redux Toolkit.
+- **React Context**: Context API for managing app-wide state like loading indicators and profile images.
+- **Lazy Loading**: Optimized performance with React's `lazy` and `Suspense`.
+- **Responsive Design**: Built with a responsive layout for various screen sizes.
+- **TypeScript**: Strongly typed codebase for better maintainability and developer experience.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Project Structure
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+src/
+├── api/ # Firebase API integration
+├── assets/ # Static assets (e.g., SVGs)
+├── components/ # Chat and user components
+│ ├── chat/ # Chat UI (header, footer, messages)
+│ └── user/ # User list, header, search, preview
+├── context/ # React context providers
+│ └── appContext/ # Global app context
+├── constants/ # Enum constants
+├── interfaces/ # TypeScript interface definitions
+├── pages/ # Route-level views (Home, Auth)
+├── redux/ # Redux store, slices, thunks, hooks
+│ ├── chat/ | auth/ | hooks/ # Organized state logic
+├── routes/ # Protected routes and error handling
+├── utils/ # Custom hooks and helper logic
+├── UI/ # Generic UI components (Layout, Loader)
+├── \_index.scss # Global SCSS
+├── App.tsx # Root application component
+└── main.tsx # Application entry point
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Technologies Used
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- **React**: Frontend library for building user interfaces.
+- **Redux Toolkit**: State management for predictable state updates.
+- **Firebase**: Backend-as-a-service for real-time database and authentication.
+- **TypeScript**: Strongly typed JavaScript for better code quality.
+- **SCSS**: Styling with modular and reusable stylesheets.
+
+---
+
+## Key Files
+
+- **`src/main.tsx`**: Application entry point.
+- **`src/redux/chat/chatSlice.ts`**: Redux slice for managing chat state.
+- **`src/context/appContext/AppContext.tsx`**: Context for managing app-wide state.
+- **`src/components/chat/Chat.tsx`**: Main chat component.
+- **`src/pages/home/Home.tsx`**: Home page component.

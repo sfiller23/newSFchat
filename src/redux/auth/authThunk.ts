@@ -7,11 +7,17 @@ import { auth, createEntity, updateEntity } from "../../api/firebase/api";
 import type { AppDispatch } from "../store";
 import { authenticate, logout } from "./authSlice";
 
-//Thunk is used for making async API calls
+/**
+ * Auth Thunks
+ * This file contains asynchronous Redux thunks for handling user authentication.
+ * It includes actions for logging in, registering, and logging out users.
+ * These thunks interact with Firebase Authentication and Firestore to manage user data.
+ */
 
 export function loginReq(email: string, password: string) {
   return async function loginThunk(dispatch: AppDispatch) {
     try {
+      // Authenticate the user with Firebase
       const credentials = await signInWithEmailAndPassword(
         auth,
         email,
@@ -37,6 +43,7 @@ export function registerReq(
 ) {
   return async function registerThunk(dispatch: AppDispatch) {
     try {
+      // Create a new user with Firebase Authentication
       const credentials = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -51,6 +58,7 @@ export function registerReq(
         loggedIn: true,
         chatIds: {},
       };
+      // Create a new user entity in Firestore users collection (separate from authenticated user list)
       await createEntity("users", userId, newUser);
       dispatch(
         authenticate({
@@ -70,7 +78,7 @@ export function logoutReq(userId: string) {
   return async function logoutThunk(dispatch: AppDispatch) {
     try {
       await updateEntity("users", userId, { loggedIn: false });
-      await signOut(auth);
+      await signOut(auth); // Sign out the user from Firebase Authentication
       dispatch(logout());
     } catch (error) {
       console.error(error);

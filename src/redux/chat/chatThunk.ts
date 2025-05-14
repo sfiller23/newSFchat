@@ -14,6 +14,12 @@ import type { AppDispatch } from "../store";
 import { setCurrentChat, setUser, setUsers } from "./chatSlice";
 import { updatedChatIds } from "./helpers";
 
+/**
+ * Chat Thunks
+ * This file contains asynchronous Redux thunks for managing chat-related operations.
+ * These thunks interact with Firebase Firestore to handle users, chats, messages, and writing states.
+ */
+
 export function getUser(userId: string) {
   return async function getUserThunk(dispatch: AppDispatch) {
     try {
@@ -52,6 +58,7 @@ export function initNewChat(chatObj: ChatObj) {
     try {
       await createEntity("chats", chatObj.chatId, chatObj);
 
+      // Update the chat IDs for both admin and participant
       await updateEntity("users", chatObj.admin.userId, {
         chatIds: chatObj.admin.chatIds,
       });
@@ -74,6 +81,7 @@ export function sendNewMessage(
       await updateDoc(doc(db, "chats", message.chatId), {
         messages: arrayUnion(message),
       });
+      // Update the chat IDs status for both admin and participant (chatSeen: false)
       await updateEntity("users", updatedAdmin.userId, {
         chatIds: updatedAdmin.chatIds,
       });
@@ -86,6 +94,9 @@ export function sendNewMessage(
   };
 }
 
+/**
+ * Marks the last message in a chat as "arrived".
+ */
 export function setMessageArrived(chatId: string) {
   return async function setMessageArrivedThunk() {
     try {
@@ -99,11 +110,16 @@ export function setMessageArrived(chatId: string) {
   };
 }
 
+/**
+ * Marks a chat as "seen" by updating the chat IDs for both admin and participant.
+ */
 export function setChatSeen(admin: User, participant: User, chatId: string) {
   return async function setChatSeenThunk() {
     try {
       const newAdminChatIdsObj = updatedChatIds(admin, chatId);
       const newParticipantChatIdsObj = updatedChatIds(participant, chatId);
+
+      // Update the chat IDs for both admin and participant (chatSeen: true)
       await updateEntity("users", admin.userId, {
         chatIds: newAdminChatIdsObj,
       });
@@ -116,6 +132,9 @@ export function setChatSeen(admin: User, participant: User, chatId: string) {
   };
 }
 
+/**
+ * Marks all messages in a chat as "seen".
+ */
 export function setNewMessageSeen(chatId: string) {
   return async function setNewMessageSeenThunk() {
     try {
@@ -131,6 +150,9 @@ export function setNewMessageSeen(chatId: string) {
   };
 }
 
+/**
+ * Updates the "writing" state of a chat in Firestore.
+ */
 export function setWritingState(
   isWriting: boolean,
   chatId: string,

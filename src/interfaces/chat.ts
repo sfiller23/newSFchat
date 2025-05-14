@@ -11,10 +11,6 @@ export interface Message {
   senderId: string;
 }
 
-export interface Chats {
-  [chatId: string]: ChatObj;
-}
-
 export interface ChatObj {
   chatId: string;
   admin: User;

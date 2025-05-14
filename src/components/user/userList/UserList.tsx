@@ -7,7 +7,7 @@ import { updateUser } from "../../../redux/chat/chatSlice";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../../api/firebase/api";
 import type { User } from "../../../interfaces/auth";
-import { useUsers } from "../../../redux/chat/chatSelectors";
+import { useSideBarUsers } from "../../../redux/chat/chatSelectors";
 import {
   getChatById,
   getUsers,
@@ -17,15 +17,25 @@ import {
 import { chatExists, createChat } from "../../../utils/chatHelpers";
 import ListItem from "./listItem/ListItem";
 
+/**
+ * UserList Component
+ * This component displays a list of users. It allows the current user to select another user
+ * to start or continue a chat. It also listens for real-time updates to the user list from Firebase Firestore.
+ */
+
 export const UserList = (props: { currentUser: User }) => {
   const { currentUser } = props;
 
-  const users = useUsers();
+  const sideBarUsers = useSideBarUsers();
 
   const [listItemActiveUid, setListItemActiveUid] = useState("");
 
   const dispatch = useAppDispatch();
 
+  /**
+   * Subscribes to real-time updates for the user list from Firebase Firestore.
+   * Updates the Redux store when users are added or modified.
+   */
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "users"), (doc) => {
       doc.docChanges().forEach((change) => {
@@ -51,6 +61,11 @@ export const UserList = (props: { currentUser: User }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Opens a chat between the current user and the selected user.
+   * If a chat already exists, it retrieves the chat and marks it as seen.
+   * If no chat exists, it creates a new chat and marks it as seen.
+   */
   const openChat = useCallback(async (admin: User, participant: User) => {
     if (chatExists(admin, participant)) {
       const chatId = chatExists(admin, participant);
@@ -85,18 +100,16 @@ export const UserList = (props: { currentUser: User }) => {
   return (
     <div className="user-list-container">
       <ul className="user-list">
-        {users?.map((user) => {
-          if (currentUser && currentUser.userId !== user.userId) {
-            return (
-              <ListItem
-                key={user.userId}
-                currentUser={currentUser}
-                user={user}
-                handleClick={handleClick}
-                listItemActiveUid={listItemActiveUid}
-              />
-            );
-          }
+        {sideBarUsers?.map((user) => {
+          return (
+            <ListItem
+              key={user.userId}
+              currentUser={currentUser}
+              user={user}
+              handleClick={handleClick}
+              listItemActiveUid={listItemActiveUid}
+            />
+          );
         })}
       </ul>
     </div>

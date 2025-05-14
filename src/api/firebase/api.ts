@@ -13,6 +13,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { firebaseConfig } from "../../../firebase";
 
+/**
+ * Firebase API Module
+ * This module provides utility functions for interacting with Firebase services,
+ * including Firestore, Storage, and Authentication. It includes functions for
+ * uploading files, creating, updating, and retrieving entities, and managing user avatars.
+ */
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth();

@@ -5,9 +5,14 @@ import type { User } from "../../../interfaces/auth";
 import type { Message as MessageProps } from "../../../interfaces/chat";
 import "./_message.scss";
 
-const Message = (props: Partial<MessageProps> & { currentUser: User }) => {
-  const bottomRef = useRef<HTMLDivElement>(null);
+/**
+ * Message Component
+ * This component represents an individual chat message. It displays the message text,
+ * the time it was sent, and the delivery status (e.g., sent, arrived, seen).
+ * It also differentiates between messages sent by the current user and received messages.
+ */
 
+const Message = (props: Partial<MessageProps> & { currentUser: User }) => {
   const {
     text,
     sentTime,
@@ -16,6 +21,11 @@ const Message = (props: Partial<MessageProps> & { currentUser: User }) => {
     currentUser,
   } = props;
 
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Scrolls the message into view when it is rendered.
+   */
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
   }, [bottomRef.current?.scrollIntoView]);
@@ -33,6 +43,7 @@ const Message = (props: Partial<MessageProps> & { currentUser: User }) => {
       <div className="message-date-time-container">
         <p>{new Date(sentTime as number).toLocaleString()}</p>
 
+        {/* Display the message status if the current user is the sender */}
         {senderId === currentUser?.userId && (
           <span>
             {status === MessageStatus.SENT && (

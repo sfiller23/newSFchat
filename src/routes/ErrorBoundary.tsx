@@ -6,39 +6,34 @@ interface ErrorBoundaryProps {
 
 interface ErrorBoundaryState {
   hasError: boolean;
-  error: Error;
-  errorInfo?: string | null;
+  errorMessage: string | null;
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = {
-      hasError: false,
-      error: { name: "", message: "" },
-      errorInfo: "",
+    this.state = { hasError: false, errorMessage: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return {
+      hasError: true,
+      errorMessage: error.message || "Check the console for more information",
     };
   }
 
-  static getDerivedStateFromError(): ErrorBoundaryState {
-    // Update state so the next render shows the fallback UI.
-    return { hasError: true };
-  }
-
-  componentDidCatch(
-    error: Error,
-    errorInfo: React.ErrorInfo
-  ): Partial<ErrorBoundaryState> {
-    // You can log the error to an error reporting service here
-
-    console.error("ErrorBoundary caught an error", error, errorInfo);
-    return { error: error, errorInfo: errorInfo.componentStack };
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      // You can customize this fallback UI
-      return <h1>Something went wrong</h1>;
+      return (
+        <div className="error-boundary">
+          <h1>Something went wrong.</h1>
+          <p>{this.state.errorMessage}</p>
+        </div>
+      );
     }
 
     return this.props.children;

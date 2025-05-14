@@ -11,6 +11,12 @@ import { useAppDispatch } from "../../../redux/hooks/reduxHooks";
 import "./_user-header.scss";
 import ImgPreviewButton from "./imgPreviewButton/ImgPreviewButton";
 
+/**
+ * UserHeader Component
+ * This component displays the header for the current user, including their profile image, display name,
+ * and a logout button. It also allows the user to add or edit their profile image.
+ */
+
 const UserHeader = (props: { currentUser: User }) => {
   const { currentUser } = props;
 
@@ -29,6 +35,10 @@ const UserHeader = (props: { currentUser: User }) => {
 
   const userId = localStorage.getItem("userId");
 
+  /**
+   * Fetches the user's profile image URL from Firebase Storage.
+   * Updates the app context with the retrieved image URL.
+   */
   useEffect(() => {
     let imgUrl: string | undefined = "";
     const getProfileUrl = async () => {
@@ -70,6 +80,7 @@ const UserHeader = (props: { currentUser: User }) => {
           <div className="display-name-container">
             <h3>{currentUser.displayName}</h3>
           </div>
+          {/* Display the user's profile image and the image preview button */}
           <span className="user-img-container">
             {!!imgProfileUrl && (
               <img

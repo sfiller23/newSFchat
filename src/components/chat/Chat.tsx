@@ -1,5 +1,5 @@
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../api/firebase/api";
 import type { User } from "../../interfaces/auth";
 import { useCurrentChat } from "../../redux/chat/chatSelectors";
@@ -9,6 +9,12 @@ import "./_chat.scss";
 import ChatFooter from "./chatFooter/ChatFooter";
 import ChatHeader from "./chatHeader/ChatHeader";
 import Message from "./message/Message";
+
+/**
+ * Chat Component
+ * This component represents the main chat interface. It includes the chat header, message board, and footer.
+ * It handles real-time updates to the chat using Firebase Firestore and displays messages dynamically.
+ */
 
 const Chat = (props: { currentUser: User }) => {
   const { currentUser } = props;
@@ -21,14 +27,19 @@ const Chat = (props: { currentUser: User }) => {
 
   const chatId = localStorage.getItem("chatId");
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-
+  /**
+   * Sets the current chat ID from localStorage when the component mounts (on click event on a user from the list).
+   */
   useEffect(() => {
     if (chatId) {
       setCurrentChatId(chatId);
     }
   }, [chatId]);
 
+  /**
+   * Subscribes to real-time updates for the current chat from Firebase Firestore.
+   * Updates the Redux store with the latest chat data.
+   */
   useEffect(() => {
     const q = query(
       collection(db, "chats"),
@@ -50,9 +61,9 @@ const Chat = (props: { currentUser: User }) => {
   return (
     <>
       <ChatHeader currentChat={currentChat} currentUser={currentUser} />
-      <div ref={scrollRef} className="chat-message-board-container">
+      <div className="chat-message-board-container">
         <div className="chat-message-board">
-          {currentChat &&
+          {currentChat && //validations
             currentChat.messages?.length !== 0 &&
             currentChat.messages?.map((message) => {
               return (
